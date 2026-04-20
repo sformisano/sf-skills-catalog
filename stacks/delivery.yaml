@@ -1,0 +1,12 @@
+---
+name: Delivery
+description: Changelog authoring, change walkthroughs, completion checks, and spec maintenance.
+author: Salvatore Formisano
+created_at: "2026-04-06T22:27:58Z"
+updated_at: "2026-04-06T22:27:58Z"
+---
+skills:
+  - changelog-authoring
+  - change-walkthrough
+  - completion-verification
+  - system-spec-authoring

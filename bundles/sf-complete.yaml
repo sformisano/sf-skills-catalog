@@ -1,0 +1,14 @@
+---
+name: SF Complete
+description: All SF catalog stacks in a single bundle for full installation.
+author: Salvatore Formisano
+created_at: "2026-04-06T22:30:37Z"
+updated_at: "2026-04-20T07:26:20Z"
+---
+stacks:
+  - squad
+  - rust-development
+  - triage
+  - delivery
+  - authoring-standards
+  - execution

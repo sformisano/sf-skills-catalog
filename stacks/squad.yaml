@@ -1,0 +1,27 @@
+---
+name: Squad
+description: Complete squad lifecycle for plan, implement, and review cycles with convergence protocols.
+author: Salvatore Formisano
+created_at: "2026-04-06T21:52:36Z"
+updated_at: "2026-04-06T21:52:36Z"
+---
+skills:
+  - squad-lead
+  - squad-convergence
+  - squad-triage
+  - squad-manifest
+  - squad-plan-author
+  - squad-plan-critic
+  - squad-plan-verification
+  - squad-implementer
+  - squad-implementation-verification
+  - squad-review-author
+  - squad-review-critic
+  - squad-review-verification
+  - requirements-authoring
+  - scenario-authoring
+  - execution-discipline
+  - completion-verification
+  - risk-based-testing
+  - system-spec-authoring
+  - test-harness-isolation

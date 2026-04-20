@@ -1,0 +1,11 @@
+---
+name: Execution
+description: Agent execution discipline, parallel dispatch, and test-harness isolation.
+author: Salvatore Formisano
+created_at: "2026-04-06T22:27:58Z"
+updated_at: "2026-04-19T08:45:00Z"
+---
+skills:
+  - execution-discipline
+  - parallel-dispatch
+  - test-harness-isolation

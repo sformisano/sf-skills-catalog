@@ -1,0 +1,11 @@
+---
+name: Triage
+description: Structured incident and bug investigation with evidence-based root cause analysis.
+author: Salvatore Formisano
+created_at: "2026-04-06T22:27:58Z"
+updated_at: "2026-04-06T22:27:58Z"
+---
+skills:
+  - triage-investigator
+  - triage-investigation-critic
+  - systematic-debugging
