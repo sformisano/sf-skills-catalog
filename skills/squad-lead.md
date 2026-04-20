@@ -3,7 +3,7 @@ name: Squad Lead
 description: Lifecycle lead for requirement-to-delivery-ready flows. Dispatches specialists for plan, implement, and review cycles, owns convergence decisions, maintains the lifecycle manifest, and hands off to delivery once review reaches `submit`.
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
-updated_at: "2026-04-19T22:09:10Z"
+updated_at: "2026-04-20T17:20:46Z"
 ---
 
 # Squad Lead
@@ -73,16 +73,16 @@ Heartbeat evidence is stronger than time. A specialist that is slow but still ap
 
 Use these wait thresholds for critical-path implementer and reviewer sessions:
 
-- One bounded wait is 5 minutes.
+- One bounded wait is 10 minutes.
 - If no heartbeat entry or artifact file exists yet, treat the dispatch timestamp as the last known activity time.
 - A first stale-heartbeat classification requires both:
-  - at least 15 minutes since the last heartbeat append or target artifact file update
+  - at least 30 minutes since the last heartbeat append or target artifact file update
   - 3 consecutive monitor checks with no factual delta
 - A factual delta means any of:
   - a new heartbeat entry
   - a change in `step`, `last_completed`, `current_gate`, or `blocker`
   - a target artifact file update
-- If the latest heartbeat says a long proof attempt or long-running command is in flight, or `can_write_now: no`, extend the first stale-heartbeat floor from 15 minutes to 20 minutes unless the heartbeat reports a blocker or routing requires immediate artifact write-out.
+- If the latest heartbeat says a long proof attempt or long-running command is in flight, or `can_write_now: no`, extend the first stale-heartbeat floor from 30 minutes to 40 minutes unless the heartbeat reports a blocker or routing requires immediate artifact write-out.
 - If the heartbeat reports a blocker, you may escalate immediately.
 - After the first escalation interrupt, wait one bounded wait for a heartbeat append, artifact update, or blocker report.
 - If that wait expires with no response, send the second escalation rung.
@@ -107,10 +107,10 @@ For plan-author dispatches:
 
 Use these wait thresholds for plan-author sessions:
 
-- One bounded wait is 5 minutes. This is monitoring cadence only, not a replacement threshold.
+- One bounded wait is 10 minutes. This is monitoring cadence only, not a replacement threshold.
 - If the target artifact file does not exist yet, treat the dispatch timestamp as the last known activity time.
 - A first stale classification requires both:
-  - at least 15 minutes since the last positive liveness signal or target artifact file update
+  - at least 30 minutes since the last positive liveness signal or target artifact file update
   - 3 consecutive monitor checks with no factual delta
 - A factual delta means any of:
   - target artifact file creation
@@ -199,7 +199,7 @@ For any plan-author or critical-path child session, use this loop until the sess
    - whether it is critical-path or sidecar
    - dispatch timestamp
 2. Enter monitoring mode immediately after dispatch and send the initial lead chat heartbeat.
-3. Wait in bounded intervals. For plan-author and for critical-path implementer and reviewer sessions, use 5-minute bounded waits.
+3. Wait in bounded intervals. For plan-author and for critical-path implementer and reviewer sessions, use 10-minute bounded waits.
 4. On timeout:
    - interpret the child as still running by default
    - for critical-path implementer and reviewer sessions, read the latest heartbeat entry and the target artifact path first
