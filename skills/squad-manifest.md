@@ -1,6 +1,6 @@
 ---
 name: Squad Manifest
-description: Structured lifecycle manifest for the squad methodology. Defines manifest.yaml, the state machine that replaces free-form status.md. Records triage history, plan rounds, per-phase implementation and review, waivers, amendments, defer acks, drift checks, and resume state in strict YAML.
+description: "Defines and updates the manifest.yaml state file that tracks rounds, waivers, reopen events, and routing decisions across squad work. Use when creating, resuming, or validating lifecycle state for a squad task."
 author: Salvatore Formisano
 created_at: "2026-04-18T11:22:39Z"
 updated_at: "2026-04-19T10:00:00Z"

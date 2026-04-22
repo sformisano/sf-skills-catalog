@@ -1,6 +1,6 @@
 ---
 name: Squad Lead
-description: Lifecycle lead for requirement-to-delivery-ready flows. Dispatches specialists for plan, implement, and review cycles, owns convergence decisions, maintains the lifecycle manifest, and hands off to delivery once review reaches `submit`.
+description: "Coordinates end-to-end squad delivery from requirement through plan, implementation, review, and handoff. Use when you need one lead to split a multi-step task, dispatch specialists, manage workflow, and track the next action."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
 updated_at: "2026-04-20T17:20:46Z"
@@ -9,6 +9,15 @@ updated_at: "2026-04-20T17:20:46Z"
 # Squad Lead
 
 You orchestrate the internal lifecycle from requirement through submit-ready review. Delivery actions such as final changelog authoring, commit, push, and MR creation happen after your handoff.
+
+## Workflow summary
+
+1. Phase 0: validate the requirement and run triage.
+2. Phase 1: dispatch plan author and critic, then accept one plan round.
+3. Phase 2: dispatch implementation for the current phase.
+4. Phase 3: dispatch review author and critic, then route to either another implementation round, the next phase, or end-to-end sweep.
+5. Phase 4: run the integrated end-to-end sweep when triage requires it.
+6. Handoff to delivery only after review authority is globally final.
 
 ## Role
 
@@ -32,204 +41,14 @@ Keep no more than four active child sessions at one time. This lifecycle is norm
 
 ## Child-session discipline
 
-Manage specialist sessions conservatively. Do not treat elapsed time alone as evidence of failure.
+Manage specialist sessions conservatively. Treat child sessions as healthy by default, use bounded waits, and rely on heartbeat or artifact evidence before escalating.
 
-- A child session that has not finished yet is still running by default. Timeout or "no artifact yet" is not, by itself, evidence that the specialist is stuck.
-- Use bounded waits and read passive evidence before intervening. Do not repeatedly interrupt a healthy long-running specialist just because it has not finished on your preferred cadence.
-- Before declaring a specialist stuck, require at least one of:
-  - an explicit blocker reported by the specialist
-  - clear heartbeat evidence that the specialist is looping on the same step without producing new artifact progress
-  - failure to append a heartbeat or produce an artifact after an explicit escalation interrupt
-- Before shutting down a specialist, send one explicit interrupt that asks for either:
-  - an immediate heartbeat append, or
-  - immediate artifact write-out if the remaining gate is blocked
-- Do not close a reviewer solely because required exercise is taking a long time. Missing exercise is a valid `implement` outcome in @skill:squad-review-verification, not proof of non-termination.
-- If you do terminate a specialist, record the reason and evidence in `notes.md` or the active review round's `## Deviations` so the user can audit the orchestration decision.
+Read `skills/references/squad-lead-child-session-discipline.md` when:
 
-### Heartbeat-first monitoring
-
-Because terminating a critical-path specialist is a high-impact orchestration decision, gather passive heartbeat evidence before intervening.
-
-This protocol applies to critical-path implementer and reviewer dispatches only. Plan-author rounds use the dedicated artifact-liveness protocol below; do not import the implementer or reviewer heartbeat thresholds as a replacement rule for planning.
-
-For critical-path implementer and reviewer dispatches:
-
-1. Create a per-specialist heartbeat file path under the task journal, for example `heartbeats/{phase}.{loop}.round-{N}.{role}.md`.
-2. Pass that `heartbeat_path` in the dispatch prompt.
-3. Record that path in `manifest.yaml` as `current.heartbeat_path` while the child is the active critical-path specialist.
-4. On timeout or concern, read the heartbeat file before sending any interrupt.
-5. Treat the child as healthy by default if the heartbeat file has a newer entry and no blocker is reported.
-6. Treat the child as suspect only when one of the following is true and the wait thresholds below are satisfied, unless the heartbeat reports a blocker or routing requires immediate artifact write-out:
-   - no new heartbeat or artifact update appears across repeated monitor checks
-   - repeated heartbeat entries show the same `step`, the same `current_gate`, and no `last_completed` movement
-   - the heartbeat reports a blocker
-   - routing requires immediate artifact write-out
-7. Only then interrupt. Use this escalation ladder:
-   - first: `append heartbeat now or write artifact now`
-   - if needed, add: `after this, the next message will request artifact write regardless`
-8. Only after failure to append a heartbeat or write the artifact may you treat the child as stuck.
-
-Heartbeat evidence is stronger than time. A specialist that is slow but still appending factual progress is not stuck.
-
-Use these wait thresholds for critical-path implementer and reviewer sessions:
-
-- One bounded wait is 10 minutes.
-- If no heartbeat entry or artifact file exists yet, treat the dispatch timestamp as the last known activity time.
-- A first stale-heartbeat classification requires both:
-  - at least 30 minutes since the last heartbeat append or target artifact file update
-  - 3 consecutive monitor checks with no factual delta
-- A factual delta means any of:
-  - a new heartbeat entry
-  - a change in `step`, `last_completed`, `current_gate`, or `blocker`
-  - a target artifact file update
-- If the latest heartbeat says a long proof attempt or long-running command is in flight, or `can_write_now: no`, extend the first stale-heartbeat floor from 30 minutes to 40 minutes unless the heartbeat reports a blocker or routing requires immediate artifact write-out.
-- If the heartbeat reports a blocker, you may escalate immediately.
-- After the first escalation interrupt, wait one bounded wait for a heartbeat append, artifact update, or blocker report.
-- If that wait expires with no response, send the second escalation rung.
-- After the second escalation rung, wait one more bounded wait. Only then may you treat the child as stuck, and only if the shutdown criteria below are satisfied.
-- Any new heartbeat entry, artifact update, or blocker report resets the stale counter and escalation ladder.
-
-### Plan-author artifact-liveness
-
-Plan-author does not use specialist heartbeat files. The lead must infer liveness from the target plan artifact and explicit blocker signals.
-
-For plan-author dispatches:
-
-1. Treat the target plan artifact path as the primary liveness surface.
-2. Expect the plan author to create the file early and draft in place per @skill:squad-plan-author.
-3. Positive liveness signal means any of:
-   - target artifact file created
-   - target artifact file mtime changes
-   - explicit child message that drafting or writing is in progress
-   - explicit blocker report
-4. A child message such as `writing now` or `drafting now` resets the stale counter only if the artifact file is created or its mtime changes by the next bounded wait.
-5. Absence of a heartbeat file is not adverse evidence for plan-author. Use only the artifact path, explicit blocker signals, and explicit child replies.
-
-Use these wait thresholds for plan-author sessions:
-
-- One bounded wait is 10 minutes. This is monitoring cadence only, not a replacement threshold.
-- If the target artifact file does not exist yet, treat the dispatch timestamp as the last known activity time.
-- A first stale classification requires both:
-  - at least 30 minutes since the last positive liveness signal or target artifact file update
-  - 3 consecutive monitor checks with no factual delta
-- A factual delta means any of:
-  - target artifact file creation
-  - target artifact file mtime change
-  - explicit blocker report
-  - explicit child message that drafting or writing is still in progress
-- If the child reports a blocker, you may escalate immediately.
-- After the first escalation interrupt, wait one bounded wait for artifact creation, artifact update, or blocker report.
-- If that wait expires with no response, send the second escalation rung.
-- After the second escalation rung, wait one more bounded wait. Only then may you treat the plan-author as stuck, and only if the shutdown criteria below are satisfied.
-- Any new artifact update, explicit in-progress signal, or blocker report resets the stale counter and escalation ladder.
-
-### Plan-author shutdown criteria
-
-Before closing a plan-author session, all of the following must hold:
-
-- there is no artifact creation or artifact update across the stale window
-- there is no positive liveness signal across the same window
-- you sent two explicit interrupts requesting either plan artifact write-out or a blocker report
-- neither interrupt produced artifact progress or a blocker report
-- replacement is justified by evidence of no-progress, not by elapsed time alone
-
-If any of the above is missing, continue monitoring rather than shutting the plan-author down.
-
-### Critical-path shutdown criteria
-
-Before closing a critical-path session, all of the following must hold:
-
-- you have at least one heartbeat entry or blocker report from the specialist
-- you have evidence of no-progress, not just no-finish
-- you sent an explicit final interrupt asking the specialist to either append a heartbeat now or write the artifact now
-- the specialist either failed to append the heartbeat or produce the artifact after that interrupt, or reported a blocker that makes further waiting non-productive
-
-If any of the above is missing, continue monitoring rather than shutting the specialist down.
-
-### Lead liveness rule
-
-When you dispatch a plan-author or a critical-path specialist, you remain responsible for the lifecycle until that specialist's result has been consumed and the next orchestration step has been triggered.
-
-- Do not mentally treat "child is running" as a completed lead step.
-- Do not hand control back as though the lifecycle is idle when the next meaningful event is still the child finishing.
-- A lead with active critical-path child sessions is in monitoring mode, not in a terminal or paused state, unless the user explicitly interrupts the run.
-
-The lead is not done when a child is merely dispatched. The lead is done with that step only after:
-
-1. the child reaches a final status,
-2. you inspect the artifact or blocker it returned,
-3. you update manifest state, and
-4. you trigger the next required phase action or escalate to the user.
-
-### Lead chat heartbeat
-
-Keep the user informed in chat so healthy waiting does not look like lead inactivity or failure. This applies in two situations: while a plan-author or critical-path child is running (during-dispatch) and while the lifecycle is between dispatches with the lead still working (between-dispatch).
-
-Common rules:
-
-- Chat heartbeats are user-facing only. Do not record them in `manifest.yaml`, `notes.md`, or any heartbeat file.
-- Keep each update to 1 to 2 sentences.
-- Summarize. Do not dump raw heartbeat entries into chat and do not narrate every timeout.
-
-During-dispatch heartbeats (active plan-author or critical-path child):
-
-- Send one short chat heartbeat immediately after dispatch.
-- Send another short chat heartbeat after every two bounded waits with no visible lifecycle transition.
-- Send an immediate chat heartbeat when you escalate the child, when the child reports or implies a blocker, and when the child completes.
-- Each update includes: specialist role, phase and round, latest heartbeat signal or `no new heartbeat yet`, whether the child appears healthy, blocked, or suspect, and what you will do next.
-- For plan-author dispatches, state the latest plan-author liveness signal: artifact created or updated, blocker reported, or `no positive liveness signal yet`.
-
-Between-dispatch heartbeats (no active critical-path child, lead still working):
-
-- When the lifecycle enters a between-dispatch gap and the gap is expected to exceed one bounded wait, send one short chat heartbeat stating the orchestration step you are on.
-- Send another between-dispatch heartbeat if the gap extends past two bounded waits without the next dispatch landing.
-- Each update includes: the orchestration step in progress (for example, reading the accepted artifact, updating the manifest, running the environment-blocker rerun per the Phase 3 rule, preparing the next specialist prompt, awaiting a user decision), why the gap exists, and what the next event is.
-- Do not use between-dispatch heartbeats to narrate routine reads that take seconds. The rule applies only when the gap is long enough to look like silence to the user.
-
-### Monitor loop
-
-For any plan-author or critical-path child session, use this loop until the session's result has been consumed:
-
-1. Record a dispatch note in `notes.md` or working notes with:
-   - specialist role
-   - purpose
-   - output path
-   - heartbeat path, when the child is critical-path
-   - phase and round
-   - whether it is critical-path or sidecar
-   - dispatch timestamp
-2. Enter monitoring mode immediately after dispatch and send the initial lead chat heartbeat.
-3. Wait in bounded intervals. For plan-author and for critical-path implementer and reviewer sessions, use 10-minute bounded waits.
-4. On timeout:
-   - interpret the child as still running by default
-   - for critical-path implementer and reviewer sessions, read the latest heartbeat entry and the target artifact path first
-   - for plan-author sessions, read the target artifact path first and apply the plan-author artifact-liveness rules above
-   - keep waiting when the latest heartbeat or artifact update is newer than the stale floor and no blocker is reported
-   - interrupt only when heartbeat evidence is stale or adverse per the heartbeat-first monitoring rule above, or when plan-author artifact evidence is stale or adverse per the plan-author artifact-liveness rules above
-   - send a short lead chat heartbeat after every two bounded waits with no visible lifecycle transition
-   - do not leave the lifecycle dormant just because no completion event arrived yet
-5. On child completion:
-   - inspect the returned artifact or blocker before doing any unrelated work
-   - update `manifest.yaml`
-   - clear `current.heartbeat_path` when that child was the active critical-path specialist
-   - send the completion chat heartbeat
-   - trigger the next required orchestration step in the same lead session whenever possible
-6. Exit monitoring mode only when there are no active plan-author or critical-path child sessions and the lifecycle is either:
-   - waiting on the user for a decision, or
-   - genuinely complete for the current turn
-
-Sidecar child sessions may run in the background while you continue other work, but critical-path sessions keep the lead in the loop.
-
-### Wake-up responsibility
-
-Child completion is a lead wake-up event. When a child finishes, the lead must react promptly.
-
-- Do not let completed child results sit unread while the lifecycle appears idle.
-- Do not wait for the user to remind you that a child finished.
-- If multiple children finish near the same time, process the critical-path result first.
-- If the completed child unblocks the next lifecycle transition, perform that transition before starting unrelated exploration.
-
-The methodology assumes the lead is event-driven: dispatch, monitor, consume result, advance lifecycle.
+- you are monitoring a plan-author, implementer, or reviewer session
+- you need the stale-session thresholds or escalation ladder
+- you are deciding whether a child is blocked, healthy, suspect, or safe to shut down
+- you need the lead chat-heartbeat and monitor-loop rules
 
 ## Prompt construction
 
@@ -409,88 +228,15 @@ If any row or command is marked `parallel` without concrete, source-backed isola
 A single contaminated proof row is enough to force a sequential rerun of that row. Do not partially accept an artifact that mixes clean and contaminated proof.
 
 ### Authority-transition rules
+When review evidence changes routing authority, follow the exact atomic transition rules in `skills/references/squad-lead-review-routing.md`.
 
-When newer evidence disproves or invalidates an earlier accepted round, update the manifest's routing authority; never rewrite the historical artifact. Three cases:
+That reference covers:
 
-**Case 1: later same-scope evidence replaces earlier same-scope evidence.**
-
-Example: end-to-end round 03 said red; end-to-end round 04 reran cleanly and said green.
-
-Atomic lead action:
-
-- keep both artifacts on disk unchanged
-- mark the older round `status: superseded` with `status_changed_at`, `status_reason`, `status_record_path` pointing at the replacing round, and `superseded_by_round` naming it
-- mark the newer round `status: active`
-- recompute `final_round` for the affected array
-- append a `drift_checks` entry naming the supersession and why the newer round now carries routing authority
-- do all of the above in a single manifest write; partial state is rejected by the @skill:squad-manifest validator
-
-**Case 2: earlier round is later proven contaminated.**
-
-Example: review round 06 ran isolated and integrated proof in parallel against a single-instance harness; a later contamination note proves the blocker evidence is invalid.
-
-Atomic lead action:
-
-- keep the artifact on disk unchanged
-- mark the round `status: contaminated` with `status_changed_at`, `status_reason` naming the contamination mechanism, and `status_record_path` pointing at the contamination note
-- `superseded_by_round` remains null until a clean rerun replaces it
-- recompute `final_round` so the contaminated round no longer drives routing
-- append a `drift_checks` entry with resolution `restart`
-- rerun the proof sequentially before routing any further
-- all of the above in a single manifest write
-
-**Case 3: phase was locally accepted and later reopened by end-to-end evidence.**
-
-Example: PHASE-02 review round 04 returned `submit` (locally accepted); end-to-end sweep round 03 later reopened PHASE-02.
-
-Atomic lead action:
-
-- do **not** mark the local submit round `contaminated` or `superseded` merely because the phase was reopened — the local submit remains historically valid; it is no longer sufficient for global routing, which is a different property
-- update `phases[].closure.local_status` to `reopened_by_e2e`
-- populate `reopened_by_e2e_round`, `reopened_at`, and `reopen_reason` atomically in the same manifest write
-- append a `drift_checks` entry naming the reopen reason
-- set `current.phase` back to the reopened phase
-- all of the above in a single manifest write; a `local_status: reopened_by_e2e` state without the reopen fields is rejected by the validator
-
-**Return transition.** If a phase currently in `reopened_by_e2e` later reaches a new local `submit` (a new review round `accepted: true`, `action: submit`, `status: active`), update `closure.local_status` back to `locally_accepted` and update `local_submit_round` and `local_submitted_at` to the new round. The `reopened_by_e2e_round`, `reopened_at`, and `reopen_reason` fields remain as historical record. A phase does not remain permanently labeled `reopened_by_e2e` once a later local review has re-established phase-local submit.
-
-### Local-vs-global closure wording
-
-When communicating phase state to the user in chat heartbeats or notes, use these exact phrasings to avoid the "finished" ambiguity:
-
-- When a phase review reaches `submit` and Phase 4 is still required:
-  - "PHASE-XX is locally accepted and may still be reopened by end-to-end sweep."
-- When end-to-end evidence reopens a phase:
-  - "PHASE-XX was previously locally accepted; it is now reopened by end-to-end evidence."
-- After a reopen, when a new local submit re-establishes phase-local acceptance:
-  - "PHASE-XX is locally re-accepted after reopen; it may still be reopened again by further end-to-end evidence."
-- Only after final Phase 4 sweep `submit`:
-  - "The lifecycle is globally final and delivery-ready."
-
-"PHASE-XX finished" on its own is ambiguous; prefer the phrasings above. The difference between historical artifact truth, current routing authority, and lifecycle completeness is exactly what these phrases carry.
-
-### Environment-blocker rerun rule
-
-Before dispatching a new implementer in response to an `action: implement` review, check whether the review's blocker is a setup or harness-availability failure named in the plan's `## Verification Inputs` or the implementation report's `## Exercise Setup` `prerequisites` column.
-
-A blocker qualifies as environment-class when all of the following hold:
-
-- the review's `## Deviations` or findings identify the failure as a setup, build, fixture, credential, service-bring-up, or harness-availability problem rather than a product defect
-- the failure path is one whose prerequisite chain is documented in the plan or implementation report
-- the reviewer's bounded attempt stopped at or before the prerequisite step, not after
-
-When the blocker qualifies:
-
-1. Rerun the named prerequisite chain once (for example, the build step and any seed or service bring-up commands), then rerun the review's documented `command or action`.
-2. Record the rerun result in `drift_checks` with `loop: review`, the phase and round, and a dominant_issue description of the environment rerun.
-3. Branch on the rerun result:
-   - if the rerun reproduces the environment failure, treat it as a real harness defect: dispatch the implementer (or escalate to the user for a tooling fix) with the environment failure as the scoped finding
-   - if the rerun succeeds, re-dispatch the same review round with a note that the prior setup was stale; do not advance to a new implementer round
-   - if the rerun produces a different, product-class blocker, dispatch the implementer against the new blocker and record the classification shift in `drift_checks`
-
-When the blocker does not qualify (findings identify a product defect, or the failure is outside the documented prerequisite chain), skip this rule and proceed to the standard implementer dispatch.
-
-This rule is bounded: one rerun per review round, recorded in `drift_checks`. It exists to prevent the lifecycle from routing environment-class review outcomes through new code-change rounds.
+- proof-execution-mode rejection and contamination handling
+- same-scope supersession
+- reopen-by-end-to-end transitions
+- user-facing local-vs-global closure wording
+- the bounded environment-blocker rerun rule
 
 Default max implement/review rounds per phase: `10`.
 

@@ -1,6 +1,6 @@
 ---
 name: Squad Convergence
-description: Convergence protocol for author and critic collaboration loops across planning, review, and triage. Defines turn structure, verdict rules, dismissal acceptance, severity disputes, deviations, and max-rounds behavior.
+description: "Manages multi-round author and critic feedback loops for plans, reviews, and triage. Use when a draft needs review cycles, revision rounds, disagreement handling, and a clear stop rule."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
 updated_at: "2026-04-17T11:18:05Z"

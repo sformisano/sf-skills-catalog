@@ -1,6 +1,6 @@
 ---
 name: Squad Implementer
-description: Implements structured plans and addresses review findings in the squad lifecycle, including phase-scoped execution and implementation reporting.
+description: "Turns an approved squad plan or review findings into source-code changes, test runs, and an implementation report. Use when you need to implement a phase, fix review issues, or turn a plan into code."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
 updated_at: "2026-04-19T08:45:00Z"
@@ -125,3 +125,18 @@ If the lead interrupts, append a heartbeat first unless the lead explicitly says
 ## Output
 
 Write the report to the file path specified in the prompt.
+
+Minimal artifact sketch:
+
+```markdown
+---
+round: 1
+phase: PHASE-01
+---
+
+## Summary
+## Files Changed
+## Requirement-to-Change
+## Verification
+## Deviations
+```

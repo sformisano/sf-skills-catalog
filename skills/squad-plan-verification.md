@@ -1,6 +1,6 @@
 ---
 name: Squad Plan Verification
-description: Plan artifact schema for the squad lifecycle. Defines required frontmatter, sections, phase IDs, scenario linkage, and quality checks used by the lead, author, and critic.
+description: "Defines the required shape of a squad implementation plan, including frontmatter, sections, walkthroughs, and verification inputs. Use when writing, checking, or revising a plan artifact or plan format before implementation."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
 updated_at: "2026-04-18T15:02:16Z"
@@ -9,6 +9,14 @@ updated_at: "2026-04-18T15:02:16Z"
 # Plan Verification
 
 This skill defines what a complete plan artifact looks like. The goal is deterministic execution, not plan prose.
+
+## Build order
+
+1. Fill frontmatter and the required sections.
+2. Apply triage to decide which conditional sections are mandatory.
+3. Add verification inputs that downstream implementation and review can run without rediscovery.
+4. Add any optional sections only when they improve execution quality.
+5. Run the quality checks before handing the plan to critique or implementation.
 
 ## Frontmatter
 
@@ -106,35 +114,12 @@ The walkthrough must name:
 
 Format (pick the archetype closest to the change; adapt freely):
 
-```markdown
-# CLI / one-shot archetype
-1. Operator runs the documented command with the documented arguments.
-2. Argument parser validates input and produces a `<concept> (input)` per the glossary.
-3. Resolver converts it into a `<concept> (storage)` and persists.
-4. Process exits with the expected code and the expected stdout/stderr.
-```
+- CLI or one-shot
+- service or event flow
+- library or API call
+- UI flow
 
-```markdown
-# Service / event archetype
-1. Upstream caller issues the documented request or event.
-2. Ingress validates and produces a `<concept> (ingress)` per the glossary.
-3. Handler produces `<concept> (domain)` and emits a side-effect (persistence, outbound message, response).
-4. Observable outcome: response payload, emitted event, stored row, or written file matches the acceptance criterion.
-```
-
-```markdown
-# Library / API archetype
-1. Consumer calls the documented public function with the documented inputs.
-2. Public surface routes to internal `<concept> (internal)` and runs the operation.
-3. Return value, raised error, or side-effect matches the acceptance criterion.
-```
-
-```markdown
-# UI archetype
-1. User performs the documented action on the documented surface.
-2. The app updates a `<concept> (client state)` per the glossary, optionally round-tripping to a backend `<concept> (server state)`.
-3. The expected visual state appears and any documented side-effect is observable externally (file written, request sent, etc.).
-```
+See `skills/references/squad-plan-walkthrough-archetypes.md` for the archetype templates.
 
 You only need one walkthrough. Pick the archetype that matches the acceptance criterion you picked. If the change spans multiple archetypes, pick the one carrying the most risk or extend the walkthrough to cover the cross-boundary hop.
 

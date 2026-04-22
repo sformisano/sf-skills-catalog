@@ -1,6 +1,6 @@
 ---
 name: Squad Review Verification
-description: Review report schema for the squad lifecycle. Defines frontmatter, phase metadata, scenario verification, deviations, and action derivation used by the lead and review specialists.
+description: "Defines the required structure of a squad review report, including findings, evidence tables, and action rules. Use when writing, checking, or revising a review report before routing."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
 updated_at: "2026-04-19T10:00:00Z"
@@ -9,6 +9,13 @@ updated_at: "2026-04-19T10:00:00Z"
 # Review Verification
 
 This skill defines what a usable review artifact looks like for the internal squad lifecycle.
+
+## Build order
+
+1. Fill frontmatter with round, phase, mode, findings, and action.
+2. Write the required review sections.
+3. Add scenario, feature exercise, regression, or parity evidence when triage requires them.
+4. Apply the action-derivation rules and quality checks before the artifact is accepted.
 
 ## Frontmatter
 

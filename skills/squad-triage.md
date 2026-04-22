@@ -1,6 +1,6 @@
 ---
 name: Squad Triage
-description: Phase 0 triage for the squad lifecycle. Produces triage.md, a mechanical flag classification of the proposed change that derives the plan's required obligations. Replaces the optional `complexity` plan field with a binding, flag-driven obligation set.
+description: "Classifies a proposed change by risk, boundaries, and required workflow gates. Use when starting a task, reassessing scope, or deciding what planning, testing, review, or approval steps apply."
 author: Salvatore Formisano
 created_at: "2026-04-18T11:22:39Z"
 updated_at: "2026-04-18T15:02:16Z"

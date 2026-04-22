@@ -1,6 +1,6 @@
 ---
 name: Squad Plan Author
-description: Creates execution-ready plans for the squad lifecycle, including phased plans for larger tasks, using the shared plan schema and requirement IDs.
+description: "Creates an execution-ready implementation plan with phases, requirement mapping, verification inputs, and risk coverage. Use when you need to plan the work, break down a task, or prepare coding before implementation starts."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
 updated_at: "2026-04-19T22:09:10Z"

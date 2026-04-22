@@ -1,6 +1,6 @@
 ---
 name: Squad Implementation Verification
-description: Implementation report schema for the squad lifecycle. Defines the required sections, phase metadata, scenario coverage, deviations, and verification evidence the lead checks before review.
+description: "Defines the implementation report format, required sections, and proof fields for squad work. Use when writing or checking a post-change report, change record, or implementation handoff before review."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
 updated_at: "2026-04-19T10:00:00Z"
@@ -9,6 +9,14 @@ updated_at: "2026-04-19T10:00:00Z"
 # Implementation Verification
 
 This skill defines the report contract for an implementation round.
+
+## Build order
+
+1. Fill frontmatter and the required sections.
+2. Add verification commands and annotate proof execution mode.
+3. Add conditional sections required by the current triage flags.
+4. Record any blockers or defers in `## Deviations` and `### Deferred`.
+5. Run the quality checks before handing the report to review.
 
 ## Frontmatter
 
@@ -143,3 +151,28 @@ Before the lead accepts the report:
 ## Output location
 
 Implementation reports live in the active task journal, typically `docs/journal/{task-ts}_{slug}/{artifact-ts}.implementation.phase-PHASE-01.round-01.md`.
+
+Minimal example:
+
+```markdown
+---
+round: 1
+phase: PHASE-01
+---
+
+## Summary
+Updated the CLI parser and added the new migration writer.
+
+## Files Changed
+- src/cli.ts
+- src/migrate.ts
+
+## Requirement-to-Change
+- REQ-001 -> `src/migrate.ts` now writes journals under `docs/journal/`
+
+## Verification
+- `npm test -- migrate` — sequential
+
+## Deviations
+- None.
+```
