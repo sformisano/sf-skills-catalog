@@ -3,7 +3,7 @@ name: Squad
 description: Complete squad lifecycle for plan, implement, and review cycles with convergence protocols.
 author: Salvatore Formisano
 created_at: "2026-04-06T21:52:36Z"
-updated_at: "2026-04-06T21:52:36Z"
+updated_at: "2026-04-23T10:41:50Z"
 ---
 skills:
   - squad-lead
@@ -25,3 +25,4 @@ skills:
   - risk-based-testing
   - system-spec-authoring
   - test-harness-isolation
+  - systematic-debugging

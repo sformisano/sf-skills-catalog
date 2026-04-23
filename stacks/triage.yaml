@@ -3,9 +3,28 @@ name: Triage
 description: Structured incident and bug investigation with evidence-based root cause analysis.
 author: Salvatore Formisano
 created_at: "2026-04-06T22:27:58Z"
-updated_at: "2026-04-06T22:27:58Z"
+updated_at: "2026-04-23T10:41:50Z"
 ---
 skills:
   - triage-investigator
   - triage-investigation-critic
   - systematic-debugging
+  - squad-convergence
+  - completion-verification
+  - squad-manifest
+  - execution-discipline
+  - risk-based-testing
+  - squad-implementer
+  - squad-lead
+  - squad-plan-critic
+  - squad-plan-verification
+  - squad-review-author
+  - squad-triage
+  - test-harness-isolation
+  - squad-implementation-verification
+  - system-spec-authoring
+  - requirements-authoring
+  - squad-plan-author
+  - squad-review-critic
+  - squad-review-verification
+  - scenario-authoring
