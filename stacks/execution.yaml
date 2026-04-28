@@ -3,7 +3,7 @@ name: Execution
 description: Agent execution discipline, parallel dispatch, and test-harness isolation.
 author: Salvatore Formisano
 created_at: "2026-04-06T22:27:58Z"
-updated_at: "2026-04-23T10:41:50Z"
+updated_at: "2026-04-28T15:30:00Z"
 ---
 skills:
   - execution-discipline
@@ -21,8 +21,10 @@ skills:
   - squad-implementer
   - squad-plan-author
   - squad-plan-critic
+  - squad-plan-adversary
   - squad-review-author
   - squad-review-critic
+  - squad-review-adversary
   - squad-triage
   - squad-plan-verification
   - system-spec-authoring

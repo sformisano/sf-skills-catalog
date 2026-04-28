@@ -3,7 +3,7 @@ name: Authoring Standards
 description: Writing quality, requirements structure, and scenario design for consistent artifacts.
 author: Salvatore Formisano
 created_at: "2026-04-06T22:27:58Z"
-updated_at: "2026-04-23T10:41:50Z"
+updated_at: "2026-04-28T15:30:00Z"
 ---
 skills:
   - copywriting
@@ -15,6 +15,7 @@ skills:
   - squad-manifest
   - squad-plan-author
   - squad-plan-critic
+  - squad-plan-adversary
   - squad-plan-verification
   - squad-review-author
   - squad-review-verification
@@ -26,4 +27,5 @@ skills:
   - test-harness-isolation
   - squad-convergence
   - squad-review-critic
+  - squad-review-adversary
   - systematic-debugging

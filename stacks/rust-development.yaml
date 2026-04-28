@@ -3,7 +3,7 @@ name: Rust Development
 description: Rust-specific code review, verification, and risk-based testing.
 author: Salvatore Formisano
 created_at: "2026-04-06T22:27:58Z"
-updated_at: "2026-04-23T10:41:50Z"
+updated_at: "2026-04-28T15:30:00Z"
 ---
 skills:
   - rust-code-review
@@ -24,8 +24,10 @@ skills:
   - squad-implementer
   - squad-plan-author
   - squad-plan-critic
+  - squad-plan-adversary
   - squad-review-author
   - squad-review-critic
+  - squad-review-adversary
   - squad-triage
   - squad-plan-verification
   - system-spec-authoring
