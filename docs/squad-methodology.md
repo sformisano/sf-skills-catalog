@@ -42,24 +42,24 @@ Before we name any roles, here is the shape of a typical run:
 ```mermaid
 flowchart TB
     Start([User describes a change]) --> P0[Phase 0: Requirement and triage]
-    P0 --> P1[Phase 1: Plan]
-    P1 --> P15[Phase 1.5: Plan adversary]
+    P0 --> P1["Phase 1: Plan<br/>plan-author + plan-critic loop"]
+    P1 --> P15[Phase 1.5: plan-adversary]
     P15 -->|accept| P2[Phase 2: Implement]
     P15 -->|dispatch_revision| P1
     P15 -->|escalate_user| User1[Ask user]
     User1 --> P1
-    P2 --> P3[Phase 3: Review]
+    P2 --> P3["Phase 3: Review<br/>review-author + review-critic loop"]
     P3 -->|action: implement| P2
-    P3 -->|action: submit| P35[Phase 3.5: Review adversary]
+    P3 -->|action: submit| P35[Phase 3.5: review-adversary]
     P35 -->|accept, more phases| P2
     P35 -->|accept, last phase| P4Decide{End-to-end sweep required?}
     P35 -->|dispatch_revision| P2
     P35 -->|escalate_user| User2[Ask user]
     User2 --> P2
-    P4Decide -->|yes| P4[Phase 4: End-to-end sweep]
+    P4Decide -->|yes| P4["Phase 4: End-to-end sweep<br/>review-author + review-critic loop on integrated diff"]
     P4Decide -->|no| Delivery[Delivery-ready]
     P4 -->|action: implement| P2
-    P4 -->|action: submit| P45[Phase 4.5: E2E review adversary]
+    P4 -->|action: submit| P45[Phase 4.5: e2e review-adversary]
     P45 -->|accept| Delivery
     P45 -->|dispatch_revision| P2
     P45 -->|escalate_user| User3[Ask user]
@@ -67,7 +67,23 @@ flowchart TB
     Delivery --> Done([Hand off to commit, push, MR])
 ```
 
-Phases 0 through 4 are the original five-step lifecycle. Phases 1.5, 3.5, and 4.5 are the adversary checks. We will return to the diagram at the end and walk it again with full vocabulary.
+Phases 0 through 4 are the original five-step lifecycle. Phases 1.5, 3.5, and 4.5 are the adversary checks. Each plan and review phase is itself a multi-round author/critic loop; the adversary runs *after* that loop converges, not in place of it. The next diagram zooms into one phase to make this explicit.
+
+```mermaid
+flowchart TB
+    subgraph Phase["Phase 1, 3, or 4 (one boundary, multi-round inner loop)"]
+        direction TB
+        Author[Author drafts artifact] --> Critic{Critic verdict}
+        Critic -->|NEEDS_REVISION| Author
+        Critic -->|SATISFIED| Converged([Loop converged])
+    end
+    Converged --> Adversary{Adversary findings + residual concern}
+    Adversary -->|accept| Next[Lead applies the phase's normal next step]
+    Adversary -->|dispatch_revision| Author
+    Adversary -->|escalate_user| User[Ask user]
+```
+
+The critic gates the loop. The adversary does not gate; it produces information the lead reconciles. Both roles run on every plan boundary and every review-with-action-submit boundary. We will see them in detail in the phase sections below. We will return to the lifecycle diagram at the end and walk it again with full vocabulary.
 
 ## Phase 0: Requirement and triage
 
