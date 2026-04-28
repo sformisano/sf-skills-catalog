@@ -3,7 +3,7 @@ name: Squad Review Critic
 description: "Audits a code-review report for missed findings, false positives, weak evidence, and routing mistakes. Use when you need a QA check, second review, or a double-check before the review is accepted."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
-updated_at: "2026-04-19T10:00:00Z"
+updated_at: "2026-04-28T00:00:00Z"
 ---
 
 # Review Critic
@@ -53,6 +53,19 @@ Before returning `SATISFIED`, verify against @skill:squad-review-verification:
 - `action` matches the findings, non-negotiable statuses, and all required exercise, regression, and parity evidence
 
 If any structural item is missing, return `CRITIC_VERDICT: NEEDS_REVISION - <specific reason>`.
+
+## Anti-frame discipline
+
+You are inside the same frame as the review-author: the diff, the plan, the triage, the implementation report. Frame-level mistakes are hard to see from inside the frame. The adversary in @skill:squad-review-adversary runs after you converge with `action: submit` to challenge the frame. You still have to push against your own frame discipline before returning `SATISFIED`. The rules below are not optional.
+
+- **Diff claims must be grounded in the diff itself, not in the review's paraphrase.** When the review asserts the implementation does X at `path:line`, open the diff at that path and read the lines. "The review's findings are well-formed" does not answer the question. Cite the path and lines you read in your `## Deviations` evidence list.
+- **Test claims must be grounded in test bodies, not in test names.** When the review says a test exercises a behavior, read the test body and confirm. A green suite with mismatched coverage is not enough.
+- **Workspace dep references must exist in the workspace.** If the implementation references a type, module, or feature that requires a workspace dep, confirm the dep is in `Cargo.toml` (or the equivalent manifest) at the version the implementation assumes. A type the implementation uses but the workspace does not depend on is a blocker even if the build passes locally.
+- **Runtime claims must be verified against runtime semantics, not paraphrased from the implementation report.** Atomic write, lock acquisition, cancellation, timeout composition, filesystem semantics: walk the actual mechanism on the target platform.
+- **Variant coverage must be checked.** If the implementation handles one variant of an artifact the codebase already supports, search for other variants in tree. A review that passes for one variant and silently breaks another is a structural defect.
+- **Treat the implementation report's framing of any external system as a hypothesis, not as data.** Re-derive the external behavior from a primary source.
+
+These rules sharpen your existing fresh-pass requirement; they do not change the verdict semantics. You still gate routing on `SATISFIED` or `NEEDS_REVISION`.
 
 ## What to look for
 

@@ -3,7 +3,7 @@ name: Squad Manifest
 description: "Defines and updates the manifest.yaml state file that tracks rounds, waivers, reopen events, and routing decisions across squad work. Use when creating, resuming, or validating lifecycle state for a squad task."
 author: Salvatore Formisano
 created_at: "2026-04-18T11:22:39Z"
-updated_at: "2026-04-19T10:00:00Z"
+updated_at: "2026-04-28T00:00:00Z"
 ---
 
 # Squad Manifest
@@ -72,6 +72,15 @@ plan:
       accepted_at: "<ISO-8601>" | null
       superseded_at: "<ISO-8601>" | null
       status: active | superseded | requires-revalidation
+      adversary:
+        path: "<relative path>" | null
+        dispatched_at: "<ISO-8601>" | null
+        findings_count_blocking: <integer> | null
+        findings_count_advisory: <integer> | null
+        findings_count_strategic: <integer> | null
+        lead_decision: accept | dispatch_revision | escalate_user | skipped | null
+        decision_reason: "<string>" | null
+        decision_at: "<ISO-8601>" | null
   final_round: <integer> | null
 
 phases:
@@ -122,6 +131,15 @@ phases:
             required: true | false
             evidence_path: "<relative path>" | null
             waiver_id: "<waiver-id>" | null
+          adversary:
+            path: "<relative path>" | null
+            dispatched_at: "<ISO-8601>" | null
+            findings_count_blocking: <integer> | null
+            findings_count_advisory: <integer> | null
+            findings_count_strategic: <integer> | null
+            lead_decision: accept | dispatch_revision | escalate_user | skipped | not_applicable | null
+            decision_reason: "<string>" | null
+            decision_at: "<ISO-8601>" | null
       final_round: <integer> | null
 
 end_to_end_sweep:
@@ -138,6 +156,15 @@ end_to_end_sweep:
       status_reason: "<string>" | null
       status_record_path: "<relative path>" | null
       superseded_by_round: <integer> | null
+      adversary:
+        path: "<relative path>" | null
+        dispatched_at: "<ISO-8601>" | null
+        findings_count_blocking: <integer> | null
+        findings_count_advisory: <integer> | null
+        findings_count_strategic: <integer> | null
+        lead_decision: accept | dispatch_revision | escalate_user | skipped | not_applicable | null
+        decision_reason: "<string>" | null
+        decision_at: "<ISO-8601>" | null
   final_round: <integer> | null
 
 waivers:
@@ -231,10 +258,57 @@ Atomicity rules for closure transitions:
 - A `reopened_by_e2e → locally_accepted` return transition updates `local_submit_round` and `local_submitted_at` to the new submit round. The prior `reopened_by_e2e_*` fields remain as historical record unless a later reopen overwrites them.
 - Every closure transition requires a matching `drift_checks` entry appended in the same write window.
 
+## Plan adversary block
+
+Each plan round carries an `adversary` block that records the @skill:squad-plan-adversary dispatch and the lead's reconciliation. The block is scoped to the plan round; cross-round adversary aggregates do not exist in the schema.
+
+Field semantics:
+
+- `path` — the adversary artifact for this plan round (`{round-ts}.plan-adversary.md`). Null only when the adversary was skipped.
+- `dispatched_at` — when the lead dispatched the adversary. Null only when skipped.
+- `findings_count_blocking` / `findings_count_advisory` / `findings_count_strategic` — counts derived directly from the adversary artifact's `## Findings` subsections. Null when the adversary was skipped.
+- `lead_decision` — `accept`, `dispatch_revision`, `escalate_user`, or `skipped`.
+- `decision_reason` — short rationale grounded in the artifact's findings, the residual concern, or the user's escalation response.
+- `decision_at` — when the lead recorded the decision in the manifest.
+
+Atomicity rules:
+
+- A `lead_decision: accept` write must populate `path`, `dispatched_at`, all three `findings_count_*` fields, `decision_reason`, and `decision_at` in the same manifest write that records `accepted: true`, `accepted_at`, and `status: active` for the plan round.
+- A `lead_decision: dispatch_revision` write must populate the same fields, append a matching `drift_checks` entry naming the dominant blocking-finding class, and not record `accepted: true` for the plan round. The next plan round is then authored as an ordinary revision round.
+- A `lead_decision: escalate_user` write must populate the same fields, append a `drift_checks` entry, and pair with a `waivers` entry of `gate: plan`, `approver: user`. The waiver's `ratified_by_user: true` records the user's eventual decision. Plan acceptance does not occur until the user-directed action completes.
+- A `lead_decision: skipped` write applies only to Tier Lite plans and pairs with a matching `drift_checks` entry of `loop: plan`, `resolution: continue` and a one-line reason. `path`, `dispatched_at`, and `findings_count_*` may all be null.
+
+Cadence rule:
+
+Each plan round has at most one adversary block. When `lead_decision: dispatch_revision` triggers a new plan round, the new round carries its own adversary block populated after its own convergence. The prior round's adversary block remains in place as historical record.
+
+## Review adversary block
+
+Each per-phase review round and each end-to-end sweep round carries an `adversary` block that records the @skill:squad-review-adversary dispatch and the lead's reconciliation. The block has the same shape as the plan adversary block. Field semantics:
+
+- `path` — the adversary artifact for this review round (`{round-ts}.review-adversary.phase-{phase}.round-{N}.md` or `{round-ts}.review-adversary.e2e.round-{N}.md`). Null when the adversary did not dispatch (skipped or not_applicable).
+- `dispatched_at` — when the lead dispatched the adversary. Null when the adversary did not dispatch.
+- `findings_count_blocking` / `findings_count_advisory` / `findings_count_strategic` — counts derived from the adversary artifact's `## Findings` subsections. Null when the adversary did not dispatch.
+- `lead_decision` — `accept`, `dispatch_revision`, `escalate_user`, `skipped`, or `not_applicable`.
+- `decision_reason` — short rationale grounded in the artifact's findings, the residual concern, or the user's escalation response.
+- `decision_at` — when the lead recorded the decision in the manifest.
+
+Lead-decision values:
+
+- `accept` — the review round's `submit` action stands. The lead applies the original Phase 3 or Phase 4 branching.
+- `dispatch_revision` — the lead loops back to implementation (Phase 2 for the same phase, or Phase 2 for the e2e-targeted phase via the existing reopen-by-e2e mechanism). The review round retains `accepted: true` but is not eligible to be `final_round`.
+- `escalate_user` — strategic findings, plan-reopen requests, earlier-phase reopen attribution, or out-of-scope adversary findings. Pairs with a `waivers` entry recording the user's direction.
+- `skipped` — Tier Lite skip with a matching `drift_checks` entry. Forbidden on Tier Standard / Tier Full when `action: submit`.
+- `not_applicable` — the review's `action` is `implement`. The adversary does not run on implement actions; the lead is already routing back.
+
+Atomicity rules mirror the plan adversary block: the `adversary` block fields, the corresponding `drift_checks` entry (when applicable), the matching `waivers` entry (when applicable), and the round's `accepted` / `status` fields are all written in the same atomic manifest write.
+
+Cadence rule: each review round has at most one adversary block. When `lead_decision: dispatch_revision` triggers a new implementation round (or a new e2e-targeted phase reopen), the next review round at the same boundary carries its own adversary block. Prior rounds' adversary blocks remain in place as historical record.
+
 ## Update protocol
 
 - **Write-only-forward.** No field is deleted. Superseded entries carry timestamps instead of disappearing.
-- **Atomic transitions.** One manifest write per event: phase transition, round acceptance, defer ack, waiver grant, amendment acceptance, drift check recorded, re-triage, round authority transition (active → superseded or active → contaminated), or phase closure transition. Authority and closure transitions are atomic per the "Round authority status" and "Per-phase closure" sections above; any partial state is rejected by the validator.
+- **Atomic transitions.** One manifest write per event: phase transition, round acceptance, defer ack, waiver grant, amendment acceptance, drift check recorded, re-triage, round authority transition (active → superseded or active → contaminated), phase closure transition, plan adversary decision recorded, or review adversary decision recorded. Authority, closure, and adversary transitions are atomic per the "Round authority status", "Per-phase closure", "Plan adversary block", and "Review adversary block" sections above; any partial state is rejected by the validator.
 - **Single writer.** Only the lead writes. Specialists produce artifacts in the journal; the lead records their acceptance and state changes in the manifest.
 - **Historical artifacts are immutable.** Never rewrite a round's artifact file to reflect a later authority transition. The manifest fields (`status`, `status_changed_at`, `status_reason`, `status_record_path`, `superseded_by_round`, and the phase `closure` block) carry that state; the artifact stays as historical evidence of what that reviewer or implementer concluded at the time.
 
@@ -254,9 +328,12 @@ The lead applies these rules before every phase transition and on every resume. 
 8. Before accepting an implementation round or any later phase, the latest accepted implementation artifact contains every **implementation-stage** obligation required by the current triage round per @skill:squad-triage §Deriving obligations. Today this includes `## Exercise Setup` when direct review proof will be required, `## Regression Baseline` when `bug-fix-regression` is `true`, `## Scenario Coverage` when the plan had scenarios, and `## Parity Evidence` when `behavior-preserving-refactor` is `true`.
 9. Before accepting a review round, end-to-end sweep round, or delivery handoff, the latest accepted review artifact contains every **review-stage** obligation required by the current triage round per @skill:squad-triage §Deriving obligations. Today this includes `## Feature Exercise Evidence` when `external-behavior-change` or `compatibility-promise` is `true`, `## Regression Evidence` when `bug-fix-regression` is `true`, and `## Parity Evidence` when `behavior-preserving-refactor` is `true`.
 10. `plan.final_round` matches the highest round in `plan.rounds` with `accepted: true` and `status: active`.
+10a. When `plan.final_round` is non-null and the current triage round's `tier` is `standard` or `full`, the matching plan round's `adversary` block has `path`, `dispatched_at`, `decision_at`, and `lead_decision` populated. `lead_decision` must be `accept`, or `escalate_user` paired with a matching `waivers` entry of `gate: plan`, `approver: user`, `ratified_by_user: true`, scoped to the plan round. A plan round whose adversary `lead_decision` is `dispatch_revision` is not eligible to be `plan.final_round`; a later plan round must be authored. When the current triage round's `tier` is `lite`, the `adversary` block may carry `lead_decision: skipped` (paired with a matching `drift_checks` entry of `loop: plan`, `resolution: continue`) or remain null. `lead_decision: skipped` is forbidden on Tier Standard and Tier Full plan rounds.
 11. For each phase, `implementation.final_round` matches the highest round in that phase's `implementation.rounds` with `accepted: true` and `status: active`. A contaminated or superseded round never counts as final; `final_round` falls back to the previous active accepted round, or to null if none exists.
 12. For each phase, `review.final_round` matches the highest round in that phase's `review.rounds` with `accepted: true` and `status: active`. The same fallback rule as rule 11 applies.
+12a. When a per-phase review round has `accepted: true`, `status: active`, and `action: submit`, and the current triage round's `tier` is `standard` or `full`, the round's `adversary` block must have `path`, `dispatched_at`, `decision_at`, and `lead_decision` populated. `lead_decision` must be `accept`, or `escalate_user` paired with a matching `waivers` entry of `gate: review`, `approver: user`, `ratified_by_user: true`, scoped to the review round. A round whose adversary `lead_decision` is `dispatch_revision` is not eligible to be `phases[].review.final_round`; a later review round must be authored. When the round's `action` is `implement`, the adversary block carries `lead_decision: not_applicable` (no adversary dispatch fires on implement actions). When the current triage round's `tier` is `lite`, the adversary block may carry `lead_decision: skipped` (paired with a matching `drift_checks` entry of `loop: review`, `phase: <phase id>`, `resolution: continue`) or remain null. `lead_decision: skipped` is forbidden on Tier Standard and Tier Full review rounds with `action: submit`.
 13. When `end_to_end_sweep.rounds` is non-empty, `end_to_end_sweep.final_round` matches the highest round with `accepted: true` and `status: active`. The same fallback rule as rule 11 applies.
+13d. When an end-to-end sweep round has `accepted: true`, `status: active`, and `action: submit`, and the current triage round's `tier` is `standard` or `full`, the round's `adversary` block must have `path`, `dispatched_at`, `decision_at`, and `lead_decision` populated. `lead_decision` must be `accept`, or `escalate_user` paired with a matching `waivers` entry of `gate: e2e-sweep`, `approver: user`, `ratified_by_user: true`, scoped to the sweep round. A round whose adversary `lead_decision` is `dispatch_revision` is not eligible to be `end_to_end_sweep.final_round`; a later sweep round must be authored after the targeted phase reopens and re-passes per-phase review. When the round's `action` is `implement`, the adversary block carries `lead_decision: not_applicable`. When the current triage round's `tier` is `lite`, the adversary block may carry `lead_decision: skipped` (paired with a matching `drift_checks` entry of `loop: e2e-sweep`, `resolution: continue`) or remain null.
 13a. Every `superseded` round has `superseded_by_round` populated pointing to an existing round in the same array; every `contaminated` round has `status_reason` and `status_record_path` populated. Missing atomicity fields reject the manifest.
 13b. Every phase's `closure.local_status` is consistent with its review rounds: `open` iff no review round has `accepted: true`, `action: submit`, `status: active`; `locally_accepted` when such a round exists and no later reopen is recorded; `reopened_by_e2e` when the most recent closure transition records a reopen that has not yet been answered by a new local submit.
 13c. `closure.reopened_by_e2e_round`, `closure.reopened_at`, and `closure.reopen_reason` are all non-null when `closure.local_status == reopened_by_e2e`; all may be non-null or null otherwise (they remain as historical record after a return-transition to `locally_accepted`).
@@ -312,6 +389,8 @@ Migration does not retroactively rename prior artifacts. Existing round files ke
 - @skill:squad-lead — creates the manifest at Phase 0 and updates it at every event.
 - @skill:squad-triage — produces the `triage.md` artifact that the manifest's `triage.path` references and whose re-triage sections map to `triage.rounds`.
 - @skill:squad-plan-critic — Angle 0 validates triage correctness; on pass, lead transitions the current triage round to `validated`.
+- @skill:squad-plan-adversary — runs once per converged plan, after the critic returns `SATISFIED`; the lead records the dispatch and reconciliation in the plan round's `adversary` block.
+- @skill:squad-review-adversary — runs once per per-phase review converged with `action: submit` and once per end-to-end sweep converged with `action: submit`; the lead records the dispatch and reconciliation in the review round's `adversary` block.
 - @skill:squad-convergence — the lead records round acceptance in the manifest after each author/critic turn converges.
 - @skill:squad-review-author and @skill:squad-implementer — own the heartbeat files that `current.heartbeat_path` points at while they are the active critical-path specialist.
 

@@ -3,7 +3,7 @@ name: Squad Convergence
 description: "Manages multi-round author and critic feedback loops for plans, reviews, and triage. Use when a draft needs review cycles, revision rounds, disagreement handling, and a clear stop rule."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
-updated_at: "2026-04-17T11:18:05Z"
+updated_at: "2026-04-28T00:00:00Z"
 ---
 
 # Convergence Protocol
@@ -117,6 +117,34 @@ The loop needs revision when:
 
 - a critic returns `NEEDS_REVISION` with a genuinely new blocking issue
 - the lead identifies a missing required section or unresolved blocker the current round did not answer
+
+## Adversary integration
+
+Two adversary roles run inside this catalog: @skill:squad-plan-adversary at the plan boundary, and @skill:squad-review-adversary at the review boundary. Both challenge the frame the author and critic share. Both are informational, not gating. The rules below apply to both unless otherwise marked.
+
+Plan-side cadence: the plan adversary runs once per converged plan, after the plan-critic returns `SATISFIED`, before the lead records plan acceptance.
+
+Review-side cadence: the review adversary runs once per converged review with `action: submit`. This means once per per-phase review that converges with `submit` (Phase 3.5 in @skill:squad-lead) and once per end-to-end sweep that converges with `submit` (Phase 4.5). The review adversary does not run when the review's `action` is `implement`; the lead is already routing back to implementation.
+
+Rules for the adversaries' interaction with this convergence protocol:
+
+- Adversaries do not return `SATISFIED` or any equivalent verdict. The author/critic convergence rules above do not apply to them.
+- Adversary output structures (defined in @skill:squad-plan-adversary and @skill:squad-review-adversary) are independent of the shared critic structure in this skill. Adversary artifacts may not be wrapped in `## Issues / ## Suggestions / ## Verdict`.
+- Each adversary's `## Strongest Residual Concern` section is required even when no blocker is surfaced. This requirement does not apply to critics; it is the adversaries' distinct contract.
+- Adversaries run once per convergence. They do not run inside the author/critic round loop. Per-round adversary dispatch is forbidden, since it would re-introduce convergence pressure into the inner loop.
+
+When adversary findings drive a new author or implementation round:
+
+- The lead records the adversary's `lead_decision: dispatch_revision` in @skill:squad-manifest before bumping the round.
+- For the plan adversary, the next author turn is an ordinary revision round under this skill: the plan-author addresses each blocking finding in `## Revision Response`, dismissals carry rationale, the plan-critic loop re-runs to `SATISFIED` per the convergence rules above.
+- For the per-phase review adversary, the next implementation round addresses the blocking findings, the review-author/review-critic loop re-runs to `SATISFIED` with `action: submit`, and the adversary runs again at the next convergence.
+- For the end-to-end review adversary, the existing reopen-by-e2e authority transition fires for the targeted phase. The phase's per-phase review (and Phase 3.5) runs again; once the phase reaches local submit and the e2e sweep reruns to `submit`, the adversary runs again with a fresh artifact path.
+- After each new convergence, the lead dispatches the relevant adversary again with a fresh artifact path. Each adversary round is independent; do not anchor on prior adversary findings as the search bound.
+- The author/critic and implementation/review loops' existing max-rounds apply unchanged. Adversaries do not have a max-rounds concept; they run once per convergence as long as the inner loop has rounds left.
+
+When the lead escalates an adversary finding to the user (`lead_decision: escalate_user`), the user's response is recorded as a `waivers` entry in @skill:squad-manifest. The waiver may direct `accept`, `dispatch_revision`, plan reopen, earlier-phase reopen, or a requirement revision; the lead acts on the user's direction.
+
+The triage loop does not run an adversary today. Triage is a single-author artifact; the plan-critic's Angle 0 already validates triage flags during the first plan round. If empirical experience surfaces a frame-level triage gap, a triage adversary is the natural follow-up.
 
 ## Max rounds
 

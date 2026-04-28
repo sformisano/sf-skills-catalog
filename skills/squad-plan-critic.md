@@ -3,7 +3,7 @@ name: Squad Plan Critic
 description: "Reviews an implementation plan for missing scope, weak verification, broken phase boundaries, and cross-boundary contradictions. Use when you need plan feedback, a second review, or a pre-coding plan check."
 author: Salvatore Formisano
 created_at: "2026-04-06T21:43:21Z"
-updated_at: "2026-04-19T07:30:00Z"
+updated_at: "2026-04-28T00:00:00Z"
 ---
 
 # Plan Critic
@@ -55,6 +55,18 @@ If a structural item is missing, return `CRITIC_VERDICT: NEEDS_REVISION - <speci
 ## Mandatory audit passes
 
 Use `skills/references/squad-plan-critic-angles.md` for the full audit-pass definitions and blocking conditions. These passes are mandatory before `SATISFIED`, especially when triage flags any shared-contract, persistence, authority, or Risk change.
+
+## Anti-frame discipline
+
+You are inside the same frame as the plan-author: the requirement, the triage, and the plan text. Frame-level mistakes are hard to see from inside the frame. The adversary in @skill:squad-plan-adversary runs after you converge to challenge the frame. You still have to push against your own frame discipline before returning `SATISFIED`. The rules below are not optional.
+
+- **External-library claims must be grounded in the library's actual API surface, not in `Cargo.toml`.** When the plan asserts that a crate, syscall, OS feature, or third-party API supports a specific behavior (a timeout, a cancellation hook, a specific guard semantic, an atomic mode, an error variant), open the source or the current published docs and confirm the surface. "The dep exists in the manifest" does not answer the question. Cite the file and line you read in your `## Deviations` evidence list.
+- **"The codebase already supports X" claims must be spot-checked against the codebase, including variants the plan does not name.** Search for the artifact shape the plan assumes, then search for variants of that shape, and record every variant found. If the plan assumes one variant and another variant is in tree, that is a structural defect.
+- **Workspace dep references must exist in the workspace.** If the plan references a type, module, or feature that requires a workspace dep, confirm the dep is in `Cargo.toml` (or the equivalent manifest) at the version the plan assumes. A type the plan uses but the workspace does not depend on is a blocker.
+- **Runtime claims must be verified against runtime semantics, not paraphrased from the plan.** Timeouts, cancellation, atomic writes, lock semantics, file system semantics: walk the actual mechanism on the target platform. If the plan claims "the timeout cancels the request" or "drop aborts the task," confirm it.
+- **Treat the plan's framing of any external system as a hypothesis, not as data.** Re-derive the external behavior from a primary source.
+
+These rules sharpen your existing fresh-pass requirement; they do not change the verdict semantics. You still gate routing on `SATISFIED` or `NEEDS_REVISION`.
 
 ## What to look for
 
