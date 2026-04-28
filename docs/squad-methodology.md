@@ -33,7 +33,7 @@ The squad methodology layers two ideas on top of phase splitting:
 
 **A single orchestrator.** A *lead* dispatches the specialists, reads their outputs, and decides what happens next. The lead does not write plans, code, or reviews; it routes. This separation matters: it means no specialist has to manage state, and the lead has full visibility into the lifecycle.
 
-Three classes of role, then: authors who draft, critics who validate, adversaries who challenge frames, and a lead that routes. This document introduces them in the order they fire on a real task.
+Three classes of specialist role, then, plus a single orchestrator: authors who draft, critics who validate, adversaries who challenge frames, and a lead that routes. This document introduces them in the order they fire on a real task.
 
 ## The lifecycle at a glance
 
@@ -83,7 +83,7 @@ flowchart TB
     Adversary -->|escalate_user| User[Ask user]
 ```
 
-The critic gates the loop. The adversary does not gate; it produces information the lead reconciles. Both roles run on every plan boundary and every review-with-action-submit boundary. We will see them in detail in the phase sections below. We will return to the lifecycle diagram at the end and walk it again with full vocabulary.
+The critic gates the loop. The adversary does not gate; it produces information the lead reconciles. Both roles run on every plan boundary and every review-with-action-submit boundary. We will see them in detail in the phase sections below.
 
 ## Phase 0: Requirement and triage
 
@@ -107,7 +107,7 @@ Once the requirement is stable, the lead produces `triage.md`. Triage is a flag-
 - Does this move the source of truth between components?
 - Does this affect security, safety, compliance, or performance behavior?
 
-Each flag is `true`, `false`, or `unknown`. Flag values drive everything downstream: which plan sections are mandatory, whether an end-to-end sweep is required, what kind of evidence the review must produce. Triage starts as `proposed`; the plan-critic validates it during Phase 1 and moves it to `validated`.
+Each flag is `true`, `false`, or `unknown`. Flag values drive everything downstream: which plan sections are mandatory, whether an end-to-end sweep is required, what kind of evidence the review must produce. Triage starts as `proposed`. The plan-critic validates it during Phase 1 round 1 (Angle 0); on a passing verdict the lead transitions the status to `validated`. Triage has no dedicated critic of its own; this inline validation is the only check.
 
 A computed *tier* (Lite / Standard / Full) summarizes the flag state. Tier drives how strict the protocol is. Tier Lite skips the heavy sections; Tier Full runs every gate.
 
@@ -155,7 +155,7 @@ sequenceDiagram
     Note over Lead: convergence reached
 ```
 
-Each loop has a maximum number of rounds (typically six for plan loops, ten for implementation/review loops). If the loop hits the cap, the lead escalates to the user.
+Each loop has a maximum number of rounds (typically six for plan loops, ten for the implementation-and-review cycle per phase). If the loop hits the cap, the lead records a final artifact and decides whether to stop, escalate to the user, or proceed with explicit assumptions documented in `## Open Questions` or `## Unresolved Disagreements`.
 
 We use this pattern in three places: Phase 1 (plan), Phase 3 (per-phase review), and Phase 4 (end-to-end sweep). Each instance has its own author and critic skill, but the shape is identical.
 
@@ -248,9 +248,9 @@ sequenceDiagram
         Critic-->>Lead: SATISFIED
         Lead->>Adversary: dispatch again
         Adversary-->>Lead: fresh findings
-        Lead->>Lead: accept
+        Note over Lead: accept
     else only advisory
-        Lead->>Lead: accept
+        Note over Lead: accept
     end
 ```
 
@@ -260,7 +260,7 @@ Tier Lite plans may skip the adversary at lead discretion; the skip is recorded 
 
 Once the plan is accepted, an implementer takes one *phase* of the plan and produces an implementation report plus the actual code changes. A phase is a stable unit of the plan with a fixed ID like `PHASE-01`, `PHASE-02`. Plans without phases run as a single `PHASE-ALL`.
 
-Implementation is the only major phase that does not run an author/critic loop. The implementer is one role; its output is reviewed in the next phase. If the implementer discovers a producer, consumer, persistence surface, or boundary that the triage missed, it stops and reports a boundary-flag discovery, which forces a re-triage.
+Implementation does not run an author/critic loop. The implementer is one role; its output is reviewed in Phase 3 by a separate review-author and review-critic, so the cross-check still happens, just not inside Phase 2. (Phase 0 also has no internal loop: triage is single-author and validated inline by the plan-critic's Angle 0 in Phase 1 round 1.) If the implementer discovers a producer, consumer, persistence surface, or boundary that the triage missed, it stops and reports a boundary-flag discovery, which forces a re-triage.
 
 ## Phase 3: Review
 
@@ -384,7 +384,7 @@ For reference. Each term is introduced and used above; this is a recap.
 - **Critic.** The role that validates an artifact against its frame (plan-critic, review-critic).
 - **Adversary.** The role that challenges the frame after convergence (plan-adversary, review-adversary).
 - **Convergence.** The state when an author/critic loop has reached `SATISFIED` with the convergence rules satisfied (fresh pass when needed, evidence on `SATISFIED`, no new blocking issue).
-- **Round.** One author turn plus one critic turn inside an author/critic loop.
+- **Round.** A numbered iteration inside a phase. In plan and review phases, one round is one author turn plus one critic turn. In implementation phases, one round is one implementer dispatch (no inner critic). The manifest tracks rounds per loop.
 - **Phase.** A stable unit of the plan with a fixed ID (`PHASE-01`, `PHASE-02`, `PHASE-ALL`).
 - **Triage.** The flag-based classification of the change. Drives obligations downstream.
 - **Tier.** The Lite / Standard / Full label computed from triage flags. Drives strictness.
@@ -400,9 +400,9 @@ A few common confusions, addressed directly.
 
 The protocol is not a *waterfall*. The phases are sequenced, but feedback loops thread back through them at every boundary. A plan round can reopen triage. An implementation round can force a re-plan. An end-to-end sweep can reopen any phase. The lead routes back as evidence demands.
 
-The protocol is not a *bureaucracy*. Tier Lite skips most of the heavy machinery: a small plan, a single phase, a focused review, the adversaries optional. The structure is designed so that small changes pay small costs.
+The protocol is not a *bureaucracy*. Tier Lite skips most of the heavy machinery: a small plan, a single phase, a focused review, with the adversaries optional. The structure is designed so that small changes pay small costs.
 
-The protocol is not a *replacement for skill*. The agents still need to be capable of reading code, writing tests, designing data structures, and reasoning about runtime semantics. The protocol catches the failure modes that emerge when capable agents work alone or in same-frame pairs. It does not turn an unskilled agent into a skilled one.
+The protocol is not a *replacement for engineering capability*. The agents still need to be capable of reading code, writing tests, designing data structures, and reasoning about runtime semantics. The protocol catches the failure modes that emerge when capable agents work alone or in same-frame pairs. It does not turn an incapable agent into a capable one. (The word "skill" is reserved in this catalog for the named files under `skills/`, so it is not used here in the human-capability sense.)
 
 The protocol is not *fixed*. The skill files in this catalog are the current implementation. As empirical experience accumulates (which findings the adversaries actually catch, which gates produce friction without value, where the boundaries between roles are wrong), the skills evolve. The history of those changes lives in `docs/changelog/` and `docs/design/`.
 
@@ -411,7 +411,7 @@ The protocol is not *fixed*. The skill files in this catalog are the current imp
 To go deeper, the natural reading order is:
 
 1. `skills/squad-lead.md` for the orchestrator's full responsibilities.
-2. `skills/squad-triage.md` (the triage flag definitions, in the wider catalog) and `skills/squad-manifest.md` for the state machine.
+2. `skills/squad-triage.md` for the triage flag definitions and `skills/squad-manifest.md` for the state machine.
 3. `skills/squad-plan-author.md`, `skills/squad-plan-critic.md`, `skills/squad-plan-adversary.md` for the plan loop.
 4. `skills/squad-implementer.md` for the implementation contract.
 5. `skills/squad-review-author.md`, `skills/squad-review-critic.md`, `skills/squad-review-adversary.md` for the review loop.
