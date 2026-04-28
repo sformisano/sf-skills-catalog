@@ -223,6 +223,8 @@ The lead reads the adversary artifact and picks one decision:
 - `dispatch_revision` when blocking findings exist. Bump the plan round, re-enter Phase 1, the author addresses each blocking finding in `## Revision Response`, and the critic loop runs again to `SATISFIED`. The adversary then runs again at the next convergence with a fresh artifact path.
 - `escalate_user` when strategic findings or frame challenges require a product or architecture decision the lead cannot make alone.
 
+The user is only involved on `escalate_user`. Both `accept` and `dispatch_revision` are made by the lead alone: the routine case where the adversary surfaces a blocker is a revision round, not a user page. The user enters the loop only when the decision is genuinely outside the lead's authority (a product or architecture call, an out-of-scope frame challenge, or, in review-adversary mode, a finding that attributes blame to the plan or an earlier phase). The same rule holds for the review-adversary in Phase 3.5 and Phase 4.5.
+
 The adversary fires once per *convergence*, not once per round. If the lead dispatches a revision and the inner loop reaches `SATISFIED` again, the adversary fires a second time. This is not the same as running the adversary on every author/critic round; that would re-introduce convergence pressure into the inner loop.
 
 ```mermaid
@@ -379,10 +381,11 @@ That walkthrough shows every role at least once and shows where the adversaries 
 
 For reference. Each term is introduced and used above; this is a recap.
 
-- **Lead.** The orchestrator. Routes, dispatches, writes the manifest, reconciles adversary findings.
+- **Lead.** The orchestrator. Routes, dispatches, writes the manifest, reconciles adversary findings. Makes `accept` and `dispatch_revision` decisions alone; only escalates to the user when a decision is outside its authority.
 - **Author.** The role that drafts an artifact (plan-author, review-author, implementer).
 - **Critic.** The role that validates an artifact against its frame (plan-critic, review-critic).
-- **Adversary.** The role that challenges the frame after convergence (plan-adversary, review-adversary).
+- **Adversary.** The role that challenges the frame after convergence (plan-adversary, review-adversary). Produces findings; does not decide routing.
+- **User.** The human who owns the change. Describes the requirement, ratifies waivers, decides on `escalate_user` paths and max-rounds escalations. Not paged for routine revision rounds.
 - **Convergence.** The state when an author/critic loop has reached `SATISFIED` with the convergence rules satisfied (fresh pass when needed, evidence on `SATISFIED`, no new blocking issue).
 - **Round.** A numbered iteration inside a phase. In plan and review phases, one round is one author turn plus one critic turn. In implementation phases, one round is one implementer dispatch (no inner critic). The manifest tracks rounds per loop.
 - **Phase.** A stable unit of the plan with a fixed ID (`PHASE-01`, `PHASE-02`, `PHASE-ALL`).
