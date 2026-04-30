@@ -129,7 +129,16 @@ Values:
 - `sequential`: the proof command was run sequentially; no other proof command shared the harness during the run.
 - `parallel (<one-sentence source-backed isolation evidence>)`: the proof ran concurrently with another; the row's evidence string names unique ports, unique temp paths, absence of shared global setup, and the scope of teardown.
 
-A row missing `execution_mode` is incomplete. A `parallel` row without concrete isolation evidence is contaminated: the lead and reviewer-critic must treat it as unverifiable and require a sequential rerun before any phase transition.
+A row missing `execution_mode` is incomplete. A `parallel` row without concrete isolation evidence is contaminated: the lead and reviewer-critic must treat it as unverifiable and require a sequential rerun before any phase transition. Default `execution_mode` to `sequential` whenever the harness does not give you concrete parallel-isolation evidence to cite.
+
+## Reviewer-produced evidence: shared rules
+
+These rules apply to every reviewer-produced evidence section: `## Feature Exercise Evidence`, `## Regression Evidence`, and `## Parity Evidence`. The per-section subsections below add only the specifics that differ.
+
+- **Bounded-attempt rule.** Make one direct proof attempt, plus at most one immediate follow-up needed to capture the blocker clearly. Do not keep searching for alternate environments or harnesses in the same round unless the prompt explicitly provides them.
+- **Downgrade-on-block rule.** If the bounded attempt cannot establish the required proof, record any partial evidence you obtained, explain the remaining gap in `## Deviations`, and set `action` to `implement`. Missing reviewer-produced evidence is enough to force `action: implement` by itself; it does not make the review artifact invalid. The only exception is `## Feature Exercise Evidence` when the lead has recorded a matching `gate: exercise` waiver in the manifest's `waivers` list with `approver: user` or `ratified_by_user: true` (see @skill:squad-manifest); regression and parity proofs have no waiver path.
+- **Reuse rule.** You may reuse command, setup, and fixture details from `## Verification Inputs` or `## Exercise Setup`. The reviewer's `action taken` and observed result must come from the current review round's direct run.
+- **Execution-mode rule.** Every row populates `execution_mode` per the `## Proof isolation` section above.
 
 ## Claim evidence sections
 
@@ -198,16 +207,11 @@ Required when `triage.flags.external-behavior-change: true` in the current triag
 
 Adapt the table to the surfaces actually changed. You do not need one row per surface type, only one per primary acceptance criterion.
 
-Rules:
+Specifics on top of the shared `## Reviewer-produced evidence: shared rules`:
 
 - Pass/fail on this evidence is the dominant signal for behavior-changing reviews; passing tests do not substitute.
 - If `compatibility-promise: true`, at least one row must exercise the compatibility path explicitly.
 - For compatibility-path rows, reuse the preserved acceptance criterion and say `compatibility path` explicitly in `action taken`.
-- You may reuse command, setup, and fixture details from `## Verification Inputs` or `## Exercise Setup`, but `action taken` and `observed outcome` must be your own.
-- Every row populates `execution_mode` with `sequential` or `parallel (<isolation evidence>)` per @skill:test-harness-isolation. Default to `sequential`.
-- Make one bounded direct attempt to exercise the required surface, plus at most one immediate follow-up needed to capture the blocker clearly. Do not keep searching for alternate environments or harnesses in the same round unless the prompt explicitly provides them.
-- If the surface still cannot be exercised after that bounded attempt, record any partial evidence you obtained, explain the remaining gap in `## Deviations`, and set `action` to `implement` unless the lead has recorded a matching exercise waiver in the manifest's `waivers` list with `gate: exercise` and either `approver: user` or `ratified_by_user: true` (see @skill:squad-manifest).
-- Missing exercise evidence is enough to force `action: implement`; it does not make the review artifact invalid by itself.
 
 ### Regression Evidence
 
@@ -217,14 +221,11 @@ Required when `triage.flags.bug-fix-regression: true` in the current triage (@sk
 | --- | --- | --- | --- | --- | --- |
 | SCN-REQ-006-01 | failing test output from the base commit | reran the targeted regression test on current tip | passed | sequential | captured test output |
 
-Rules:
+Specifics on top of the shared `## Reviewer-produced evidence: shared rules`:
 
 - The row must map to the regression scenario or regression proof commitment named in the plan.
 - `before evidence` may come from a base-branch rerun, preserved failing logs, or an accepted artifact that captured the pre-fix failure. It must show a concrete failure, not a hypothetical risk.
 - `before evidence` may reuse the implementation report's `## Regression Baseline` when it is concrete and attributable, but `after action taken` and `after observed result` must be the reviewer's own.
-- Every row populates `execution_mode` with `sequential` or `parallel (<isolation evidence>)` per @skill:test-harness-isolation. Default to `sequential`.
-- Use the same bounded-attempt rule as `## Feature Exercise Evidence`: one direct proof attempt plus at most one immediate follow-up to capture the blocker clearly.
-- If the reviewer cannot establish either the before state or the after proof after that bounded attempt, record the reason in `## Deviations` and set `action` to `implement`.
 
 ### Parity Evidence
 
@@ -234,14 +235,10 @@ Required when `triage.flags.behavior-preserving-refactor: true` in the current t
 | --- | --- | --- | --- | --- | --- |
 | golden-output comparison | CLI stdout for `foo --bar` before/after refactor | compared saved golden outputs to current output | matched | sequential | captured diff output |
 
-Rules:
+Specifics on top of the shared `## Reviewer-produced evidence: shared rules`:
 
 - The method must match the one named in triage's `## Parity method`.
 - Do not quote or copy the implementation report's result. Re-run the method and record your own evidence.
-- Every row populates `execution_mode` with `sequential` or `parallel (<isolation evidence>)` per @skill:test-harness-isolation. Default to `sequential`.
-- You may reuse setup details from `## Verification Inputs` or `## Exercise Setup`, but the parity result must come from the current review round's direct run.
-- Use the same bounded-attempt rule as `## Feature Exercise Evidence`: one direct proof attempt plus at most one immediate follow-up to capture the blocker clearly.
-- If parity cannot be checked after that bounded attempt, record the reason in `## Deviations` and set `action` to `implement`.
 
 ## Quality checks
 

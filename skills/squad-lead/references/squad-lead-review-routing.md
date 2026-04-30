@@ -51,6 +51,15 @@ Case 3, end-to-end evidence reopens a locally accepted phase:
 - append a `drift_checks` entry
 - route back to the reopened phase
 
+Case 4, pre-E2E smoke evidence reopens a locally accepted phase:
+
+- do not mark the earlier local submit round `superseded` or `contaminated`
+- update `phases[].closure.local_status` to `reopened_by_pre_e2e_smoke`
+- populate `reopened_by_smoke_path`, `reopened_at`, and `reopen_reason` atomically
+- append a `drift_checks` entry
+- route back to the reopened phase
+- the smoke artifact stays on disk and remains the authoritative record of the failure; no end-to-end sweep round is created by a smoke reopen
+
 Return transition after reopen:
 
 - when a reopened phase later reaches a new local `submit`, set `closure.local_status` back to `locally_accepted`

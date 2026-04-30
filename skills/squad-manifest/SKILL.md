@@ -142,6 +142,7 @@ phases:
             findings_count_blocking: <integer> | null
             findings_count_advisory: <integer> | null
             findings_count_strategic: <integer> | null
+            # not_applicable is only valid when action == implement; see rule 12a.
             lead_decision: accept | dispatch_revision | escalate_user | skipped | not_applicable | null
             decision_reason: "<string>" | null
             decision_at: "<ISO-8601>" | null
@@ -169,6 +170,7 @@ end_to_end_sweep:
         findings_count_blocking: <integer> | null
         findings_count_advisory: <integer> | null
         findings_count_strategic: <integer> | null
+        # not_applicable is only valid when action == implement; see rule 13d.
         lead_decision: accept | dispatch_revision | escalate_user | skipped | not_applicable | null
         decision_reason: "<string>" | null
         decision_at: "<ISO-8601>" | null

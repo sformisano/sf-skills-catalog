@@ -56,18 +56,21 @@ flowchart TB
     P35 -->|dispatch_revision| P2
     P35 -->|escalate_user| User2[Ask user]
     User2 --> P2
-    P4Decide -->|yes| P4["Phase 4: End-to-end sweep<br/>review-author + review-critic loop on integrated diff"]
-    P4Decide -->|no| Delivery[Delivery-ready]
+    P4Decide -->|yes| P375[Phase 3.75: pre-E2E smoke]
+    P4Decide -->|no| DGate[Delivery handoff gate]
+    P375 -->|pass| P4["Phase 4: End-to-end sweep<br/>review-author + review-critic loop on integrated diff"]
+    P375 -->|fail or reopen| P2
     P4 -->|action: implement| P2
     P4 -->|action: submit| P45[Phase 4.5: e2e review-adversary]
-    P45 -->|accept| Delivery
+    P45 -->|accept| DGate
     P45 -->|dispatch_revision| P2
     P45 -->|escalate_user| User3[Ask user]
-    User3 --> Delivery
+    User3 --> DGate
+    DGate --> Delivery[Delivery-ready]
     Delivery --> Done([Hand off to commit, push, MR])
 ```
 
-Phases 0 through 4 are the original five-step lifecycle. Phases 1.5, 3.5, and 4.5 are the adversary checks. Each plan and review phase is itself a multi-round author/critic loop; the adversary runs *after* that loop converges, not in place of it. The next diagram zooms into one phase to make this explicit.
+Phases 0 through 4 are the requirement-through-sweep arc. Phases 1.5, 3.5, and 4.5 are the adversary checks. Phase 3.75 is a cheap pre-E2E smoke that runs after all phases are locally accepted and before the integrated end-to-end sweep, when a sweep is required. The delivery handoff gate runs after the final review converges; only after it passes does the lead set `delivery-ready`. Each plan and review phase is itself a multi-round author/critic loop; the adversary runs *after* that loop converges, not in place of it. The next diagram zooms into one phase to make this explicit.
 
 ```mermaid
 flowchart TB
@@ -219,7 +222,7 @@ Second, every adversary run produces *some* output (the residual-concern rule gu
 
 The lead reads the adversary artifact and picks one decision:
 
-- `accept` when only advisory findings remain. Record the plan acceptance and advance to Phase 2.
+- `accept` when no `Blocking` and no `Strategic` findings remain and the residual concern is bounded. Advisory findings are allowed. Record the plan acceptance and advance to Phase 2.
 - `dispatch_revision` when blocking findings exist. Bump the plan round, re-enter Phase 1, the author addresses each blocking finding in `## Revision Response`, and the critic loop runs again to `SATISFIED`. The adversary then runs again at the next convergence with a fresh artifact path.
 - `escalate_user` when strategic findings or frame challenges require a product or architecture decision the lead cannot make alone.
 
@@ -292,21 +295,51 @@ The lead's reconciliation is the same three decisions: `accept`, `dispatch_revis
 
 The adversary does not run when the review's `action` is `implement`. The lead is already routing back; the implementation will rewrite the surface the adversary would have audited.
 
+## Phase 3.75: Pre-E2E integration smoke
+
+When the triage requires Phase 4, the lead does not jump straight from the last phase's local submit into the integrated end-to-end sweep. Phase 4 is expensive: it dispatches a full review-author/critic loop against the entire change. Cheap, mechanical drift between phases should be caught before that.
+
+Phase 3.75 is that cheap preflight. After every required implementation phase is locally accepted (Phase 3.5 done) and before any Phase 4 dispatch, the lead runs a smoke artifact that checks:
+
+- Every NNG and high-risk REQ claim row whose `proof_stage` is `cross_phase_smoke` is satisfied against the composed tree.
+- Every fixture added by the lifecycle has an accepted consuming test or exercise.
+- Every removed surface has an accepted negative scan over the composed tree, not just one phase's slice.
+- Every public command named in docs or UI help has an accepted help or existence proof.
+- Lifecycle artifacts (manifest, final review records, handoff/status docs, changelog state) do not visibly contradict each other.
+
+The smoke is mechanical. The lead reads accepted artifacts, runs literal scans named in the plan, and runs help commands. If a smoke question requires interpreting implementation source, that work belongs to the Phase 4 review-author, not here. If the smoke finds a defect attributable to one phase, that phase's `closure.local_status` transitions to `reopened_by_pre_e2e_smoke` and the lead loops back to Phase 2 for that phase. If the smoke finds a plan or framing problem, the lead escalates to the user before any Phase 4 dispatch.
+
+Tier Lite tasks may skip the smoke with a `drift_checks` entry naming why the full Phase 4 sweep or direct delivery gate is sufficient. Tier Standard and Tier Full always run it when Phase 4 is required.
+
 ## Phase 4: End-to-end sweep
 
 Per-phase reviews see one phase's diff. They cannot see *cross-phase* regressions: a contract established in Phase 1 silently violated in Phase 3, an acceptance criterion no longer satisfied once the phases compose, a behavior change that emerged only in the integrated result.
 
-Phase 4 catches those. It runs when the triage flags require it (when any Risk flag is true, or when `multi-phase: true` combined with certain other flags). The sweep is a review against the integrated diff and the original requirement. It runs the same author/critic pattern as Phase 3, with one difference: the review reads every primary acceptance criterion against the full integrated change, not against any single phase's plan.
+Phase 4 catches those. It runs when the triage flags require it: any Risk flag is `true`, or `multi-phase: true` is combined with one of `shared-contract-change`, `persisted-state-change`, `authority-shift`, `external-behavior-change`, or `compatibility-promise`. (`multi-phase: true` alone does not trigger Phase 4.) The sweep is a review against the integrated diff and the original requirement. It runs the same author/critic pattern as Phase 3, with one difference: the review reads every primary acceptance criterion against the full integrated change, not against any single phase's plan.
 
 When the sweep converges with `action: implement`, the lead applies the existing reopen-by-end-to-end mechanism: the sweep names the phase that introduced the regression, that phase's `closure.local_status` transitions to `reopened_by_e2e`, and the lead loops back to Phase 2 for that phase.
 
-When the sweep converges with `action: submit`, the lead transitions to Phase 4.5 before marking delivery-ready.
+When the sweep converges with `action: submit`, the lead transitions to Phase 4.5 before entering the delivery handoff gate.
 
 ## Phase 4.5: End-to-end review adversary
 
 `squad-review-adversary` runs again, this time in `mode: e2e`. The frame here is "the integrated diff against the requirement," and the adversary challenges *that* frame. The reconciliation surface is the same three decisions; on `dispatch_revision` the lead uses the existing reopen-by-end-to-end mechanism for the targeted phase.
 
-After Phase 4.5 accepts, the lifecycle is `delivery-ready` and the lead hands off to commit, push, and MR creation.
+After Phase 4.5 accepts, the lead enters the delivery handoff gate before marking the lifecycle `delivery-ready`.
+
+## Delivery handoff gate
+
+Acceptance of the final review (Phase 3.5 or Phase 4.5) is necessary but not sufficient for delivery. Before the lead may set `current.phase: delivery-ready`, a separate handoff gate runs. It verifies:
+
+- the manifest is valid against every applicable validation rule
+- the current triage round is `validated` and does not require revalidation
+- every waiver that lifts a delivery gate is user-ratified, unexpired, and scoped to its proof obligation
+- every carry-forward deferred item is resolved; promoted or escalated defers name a concrete target
+- every `proof_stage: delivery` NNG or high-risk REQ claim has a satisfied `delivery_claims` entry with concrete evidence and `execution_mode` for command-backed proof
+- the final review round's adversary block records `lead_decision: accept` (or `escalate_user` paired with a ratified user waiver, or `skipped` paired with a Tier Lite drift check)
+- a lifecycle coherence audit confirms manifest, final review records, handoff or status docs, and changelog state agree
+
+Only after every gate passes does the lead set `current.phase: delivery-ready` and hand off to delivery for changelog authoring, commit, push, and MR creation.
 
 ## The lead
 
@@ -413,12 +446,13 @@ The protocol is not *fixed*. The skill files in this catalog are the current imp
 
 To go deeper, the natural reading order is:
 
-1. `skills/squad-lead.md` for the orchestrator's full responsibilities.
-2. `skills/squad-triage.md` for the triage flag definitions and `skills/squad-manifest.md` for the state machine.
-3. `skills/squad-plan-author.md`, `skills/squad-plan-critic.md`, `skills/squad-plan-adversary.md` for the plan loop.
-4. `skills/squad-implementer.md` for the implementation contract.
-5. `skills/squad-review-author.md`, `skills/squad-review-critic.md`, `skills/squad-review-adversary.md` for the review loop.
-6. `skills/squad-convergence.md` for the loop rules that all author/critic pairs share.
-7. `skills/squad-plan-verification.md`, `skills/squad-implementation-verification.md`, `skills/squad-review-verification.md` for the artifact schemas.
+1. `skills/squad-lead/SKILL.md` for the orchestrator's full responsibilities.
+2. `skills/squad-triage/SKILL.md` for the triage flag definitions and `skills/squad-manifest/SKILL.md` for the state machine.
+3. `skills/squad-plan-author/SKILL.md`, `skills/squad-plan-critic/SKILL.md`, `skills/squad-plan-adversary/SKILL.md` for the plan loop.
+4. `skills/squad-implementer/SKILL.md` for the implementation contract.
+5. `skills/squad-review-author/SKILL.md`, `skills/squad-review-critic/SKILL.md`, `skills/squad-review-adversary/SKILL.md` for the review loop.
+6. `skills/squad-convergence/SKILL.md` for the loop rules that all author/critic pairs share.
+7. `skills/squad-plan-verification/SKILL.md`, `skills/squad-implementation-verification/SKILL.md`, `skills/squad-review-verification/SKILL.md` for the artifact schemas.
+8. `skills/lifecycle-coherence-audit/SKILL.md` for the delivery-readiness coherence rules.
 
 The skill files are normative and exhaustive; this document is the map.
