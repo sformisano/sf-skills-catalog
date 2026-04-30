@@ -323,7 +323,7 @@ When the sweep converges with `action: submit`, the lead transitions to Phase 4.
 
 ## Phase 4.5: End-to-end review adversary
 
-`squad-review-adversary` runs again, this time in `mode: e2e`. The frame here is "the integrated diff against the requirement," and the adversary challenges *that* frame. The reconciliation surface is the same three decisions; on `dispatch_revision` the lead uses the existing reopen-by-end-to-end mechanism for the targeted phase.
+`squad-review-adversary` runs again, this time in `mode: end_to_end`. The frame here is "the integrated diff against the requirement," and the adversary challenges *that* frame. The reconciliation surface is the same three decisions; on `dispatch_revision` the lead uses the existing reopen-by-end-to-end mechanism for the targeted phase.
 
 After Phase 4.5 accepts, the lead enters the delivery handoff gate before marking the lifecycle `delivery-ready`.
 

@@ -1,6 +1,6 @@
 ---
 name: squad-implementation-verification
-description: "Defines the report format for a squad lifecycle implementation round. Use when loaded by squad implementer, squad review author, or squad lead to write or check a squad implementation artifact."
+description: "Defines the squad lifecycle implementation report contract — claim proof results, fixture use, exercise setup, scenario coverage, regression baseline, parity evidence, and deferred items. Use when writing or auditing a squad implementation artifact while acting as squad implementer, review author, or lead, not for ordinary code review or status writeups."
 metadata:
   skillcatalog/display_name: "Squad Implementation Verification"
   skillcatalog/author: "Salvatore Formisano"
@@ -109,8 +109,7 @@ Rules:
 
 - record inventory-class facts only: commands, harness paths, fixture files, seeded data, endpoints, environment toggles, or preserved artifact paths
 - do not paste proof outcomes here; actual proof belongs in review evidence sections
-- `prerequisites` is an ordered list of everything a reviewer running cold must execute before `command or action` works. If you ran your own proof against a warm workspace, your warm state does not excuse you from listing the prerequisites a cold reviewer needs (build steps, asset compilation, service spin-up, seed commands). Use `none` only when the primary command truly has no external prerequisites.
-- a reviewer must be able to take the listed prerequisites in order, then run `command or action`, and get the documented `expected signal`. If they cannot, the Exercise Setup row is incomplete and the implementation report must be revised.
+- a reviewer must be able to take the listed `prerequisites` in order, then run `command or action`, and get the documented `expected signal`. If they cannot, the Exercise Setup row is incomplete and the implementation report must be revised. Your own warm workspace does not excuse listing what a cold reviewer would need (build steps, asset generation, service bring-up, seed commands); use `prerequisites: none` only when the primary command truly runs cold with no setup.
 - when `compatibility-promise: true`, include the compatibility-path row explicitly
 - when `behavior-preserving-refactor: true`, include the parity-method setup row explicitly
 

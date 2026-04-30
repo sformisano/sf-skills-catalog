@@ -35,11 +35,11 @@ Pass to the adversary specialist:
 
 Inject the standard delegation context block defined in @skill:squad-lead § Delegation context.
 
-Set `mode` in the prompt context per boundary:
+Set `mode` in the prompt context per boundary. The review-adversary `mode` token matches the review artifact's `mode` token (see @skill:squad-review-verification): one vocabulary across review-author, review-critic, and review-adversary.
 
 - Phase 1.5: no mode needed (plan adversary is single-mode).
-- Phase 3.5: `mode: per-phase`.
-- Phase 4.5: `mode: e2e`.
+- Phase 3.5: `mode: phase`.
+- Phase 4.5: `mode: end_to_end`.
 
 Where the orchestration layer can route the adversary to a different model than the author/critic, do so. Same-model adversaries still apply the countermeasures named in @skill:squad-plan-adversary § Same-model awareness or @skill:squad-review-adversary § Same-model awareness.
 

@@ -140,25 +140,16 @@ Required exercise, regression, and parity checks are bounded, not open-ended.
 
 - Before the direct attempt, run the prerequisite commands named in the plan's `## Verification Inputs` and in the implementation report's `## Exercise Setup` `prerequisites` column, in the order they list them. Running documented setup is part of the bounded attempt, not a separate search for alternate environments.
 - Make one direct attempt per required surface or proof path in the current round after the prerequisites have run.
-- If that attempt fails or remains incomplete, make at most one immediate follow-up needed to capture the blocker clearly, for example: rerun with the documented arguments, capture the exact error, or check the directly adjacent harness named in the prompt or plan.
-- After that bounded attempt, stop gathering more evidence for this round and write the artifact immediately.
+- If that attempt fails or remains incomplete, make at most one immediate follow-up needed to capture the blocker clearly: rerun with the documented arguments, capture the exact error, or check the directly adjacent harness named in the prompt or plan.
+- After that bounded attempt, stop gathering more evidence for this round and write the artifact immediately. Do not keep searching for undocumented environments, credentials, or new harnesses in the same round unless the prompt explicitly provides them.
 
-When bounded attempts still leave the evidence incomplete:
+Downgrade rule when a bounded attempt cannot establish required proof:
 
-- include whatever concrete evidence you did obtain
-- record the remaining gap in `## Deviations`
-- set `action: implement` unless there is a valid manifest-recorded waiver that explicitly allows `submit`
-- include the strongest code-backed finding you have, if any; otherwise state that the blocking issue is the evidence gap itself
-
-Running setup and prerequisite commands named in the plan's `## Verification Inputs` or the implementation report's `## Exercise Setup` `prerequisites` column is not "searching for alternate environments"; it is executing the documented setup sequence. You must run those prerequisites as part of the bounded attempt, even when the prompt's command string does not include them.
-
-Do not keep searching for undocumented environments, credentials, or new harnesses in the same round unless the prompt explicitly provides them.
-
-If the surface cannot be exercised (no build available, missing credentials, sandbox blocks the surface, no test harness exists for this surface), record the reason in `## Deviations` and downgrade the review action to `implement` unless the lead has recorded an explicit matching exercise waiver in the manifest's `waivers` list and that waiver has `approver: user` or `ratified_by_user: true` (see @skill:squad-manifest). Missing exercise is a valid reason to return an `implement` review artifact; it is not a reason to withhold the artifact. Do not submit a behavior-changing implementation on test evidence alone.
-
-If the regression's before state or after-fix proof cannot be established for a bug-fix review, record the reason in `## Deviations` and downgrade the review action to `implement`. Missing regression proof is a valid reason to return the artifact immediately.
-
-If the parity method cannot be executed for a behavior-preserving refactor, record the reason in `## Deviations` and downgrade the review action to `implement`. Missing parity proof is a valid reason to return the artifact immediately.
+- Include whatever concrete evidence you did obtain.
+- Record the remaining gap in `## Deviations`, naming what was attempted and what blocked.
+- Set `action: implement`. The only exception is `## Feature Exercise Evidence`: if the lead has recorded a matching `gate: exercise` waiver in the manifest's `waivers` list with `approver: user` or `ratified_by_user: true` (see @skill:squad-manifest), `submit` is permitted. Regression and parity proofs have no waiver path.
+- Include the strongest code-backed finding you have, if any; otherwise state that the blocking issue is the evidence gap itself.
+- Return the artifact immediately. Missing exercise, regression, or parity proof is a valid reason to return an `implement` review; it is never a reason to withhold the artifact, and a behavior-changing implementation must not be submitted on test evidence alone.
 
 ## Severity guidance
 

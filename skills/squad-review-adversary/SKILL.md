@@ -61,12 +61,12 @@ These are seed shapes, not a checklist. The point is not to walk a list; the poi
 
 ## Per-phase versus end-to-end mode
 
-You run in two modes. The structural contract is the same; the search emphasis differs.
+You run in two modes. The structural contract is the same; the search emphasis differs. The mode token matches the review artifact's `mode` token (see @skill:squad-review-verification): one vocabulary, four roles.
 
-- **Per-phase mode** runs after a per-phase review converges with `action: submit`. The diff is one phase's slice. Emphasize within-phase frame mistakes and contract assumptions this phase makes about earlier phases.
-- **End-to-end mode** runs after the end-to-end sweep converges with `action: submit`. The diff is the integrated change set. Emphasize cross-phase regressions, contract drift between phases, integrated behaviors that no per-phase review could see.
+- **`mode: phase`** runs after a per-phase review converges with `action: submit`. The diff is one phase's slice. Emphasize within-phase frame mistakes and contract assumptions this phase makes about earlier phases.
+- **`mode: end_to_end`** runs after the end-to-end sweep converges with `action: submit`. The diff is the integrated change set. Emphasize cross-phase regressions, contract drift between phases, integrated behaviors that no per-phase review could see.
 
-The artifact frontmatter records which mode you ran in (`mode: per-phase` or `mode: e2e`).
+The artifact frontmatter records which mode you ran in.
 
 ## Depth is the deliverable
 
@@ -137,7 +137,7 @@ Write to the file path specified in the prompt. Use these sections, in this orde
 ---
 artifact: review-adversary
 task: <task-id>
-mode: per-phase | e2e
+mode: phase | end_to_end
 phase: PHASE-XX | PHASE-ALL | e2e
 review_round: <integer>
 review: <relative path to converged review>

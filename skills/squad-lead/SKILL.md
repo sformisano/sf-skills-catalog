@@ -283,7 +283,7 @@ Phase 3.5 does not run when the review's `action` is `implement`. The lead loops
 Apply the standard adversary contract from `references/squad-lead-adversary-reconciliation.md`. Phase 3.5 specifics on top of the shared contract:
 
 - Output path: `{round-ts}.review-adversary.phase-{phase}.round-{N}.md`.
-- `mode: per-phase` in the prompt context.
+- `mode: phase` in the prompt context.
 - On `accept`: apply the original Phase 3 branch — advance to the next phase, advance to Phase 3.75 or Phase 4 if required, or enter the delivery handoff gate. The atomic write that records `lead_decision: accept` also records the round's `accepted: true`, `accepted_at`, `status: active`, the `exercise` block, and `phases[].review.final_round`. If this closes the final implementation phase and Phase 4 is required, go to Phase 3.75 before dispatching the end-to-end sweep. If no later phase or Phase 4 remains, enter the delivery handoff gate rather than marking delivery-ready directly.
 - On `dispatch_revision`: only when blocking findings attribute blame to this phase's implementation. Loop back to Phase 2 for this phase with the next implementation round. The next implementer must address each blocking finding (in its `## Revision Response` or equivalent). The per-phase review-author/review-critic loop runs again to `SATISFIED` with `action: submit`, and a fresh adversary runs at the next convergence.
 - On `escalate_user`: in addition to the shared triggers, escalate when blocking findings attribute blame to the plan or to an earlier phase (the lead does not unilaterally reopen from a per-phase boundary). Record the user-facing waiver with `gate: review` once granted. The user may direct `accept`, `dispatch_revision`, plan reopen, earlier-phase reopen, or a requirement revision.
@@ -373,7 +373,7 @@ Phase 4.5 does not run when the sweep's `action` is `implement`. The existing re
 Apply the standard adversary contract from `references/squad-lead-adversary-reconciliation.md`. Phase 4.5 specifics on top of the shared contract:
 
 - Output path: `{round-ts}.review-adversary.e2e.round-{N}.md`.
-- `mode: e2e` in the prompt context.
+- `mode: end_to_end` in the prompt context.
 - On `accept`: enter the delivery handoff gate. The atomic write that records `lead_decision: accept` also records the e2e round's `accepted: true`, `accepted_at`, `status: active`, and `end_to_end_sweep.final_round`. Do not set `current.phase: delivery-ready` until that gate passes.
 - On `dispatch_revision`: apply the existing reopen-by-end-to-end authority transition for the phase the adversary's blame attributes to. Set that phase's `closure.local_status` to `reopened_by_e2e`, populate the reopen fields atomically, and loop back to Phase 2 for that phase (see `references/squad-lead-review-routing.md` Case 3). The phase's per-phase review (and Phase 3.5) runs again; once that phase reaches local submit and the e2e sweep reruns to `submit`, dispatch a fresh adversary run.
 - On `escalate_user`: record the user-facing waiver with `gate: e2e-sweep` once granted.
