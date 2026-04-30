@@ -1,0 +1,10 @@
+# Local-only working artifacts. Squad runs write task journals and changelogs
+# into these directories; they are not part of the catalog the registered
+# clone delivers.
+docs/changelog/
+docs/journal/
+
+# Local scratch space for moved-out content, drafts, and prep work.
+.tmp/
+
+.DS_Store
