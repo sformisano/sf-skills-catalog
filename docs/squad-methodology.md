@@ -317,7 +317,7 @@ The lead does not perform any of the specialist work itself. It does not write p
 - Specialists run in clean contexts. They are not contaminated by prior conversation history or by other specialists' frames.
 - The lead has full visibility into every artifact produced, which means resume after interruption is mechanical: read the manifest, re-validate, continue from the recorded position.
 
-The lead also runs *child-session discipline*: when a specialist is slow, the lead waits with bounded heartbeat checks instead of escalating immediately. The reference for that lives in `skills/references/squad-lead-child-session-discipline.md`.
+The lead also runs *child-session discipline*: when a specialist is slow, the lead waits with bounded heartbeat checks instead of escalating immediately. The reference for that lives in `skills/squad-lead/references/squad-lead-child-session-discipline.md`.
 
 ## The manifest
 
