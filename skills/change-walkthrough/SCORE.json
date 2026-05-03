@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "skill_slug": "change-walkthrough",
+  "runs": [
+    {
+      "run_id": "01JZ0000000000000000000001",
+      "started_at": "2026-05-03T12:30:00Z",
+      "completed_at": "2026-05-03T12:30:12Z",
+      "content_hash": "2437906ab6471c1cc76e3f5e8e76699099ef3c0705719e92c4712305bfae2867",
+      "rubric_version": "v1",
+      "providers": [
+        {
+          "provider_id": "anthropic",
+          "model_id": "claude-opus-4-7",
+          "envelope": {
+            "schema_version": 1,
+            "overall_pass": true,
+            "score": 76,
+            "dimensions": [
+              {
+                "id": "description-quality",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "trigger-clarity",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "workflow-specificity",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "boundary-discipline",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "tooling-guidance",
+                "raw": 2,
+                "weight": 1.0,
+                "weighted": 8.3
+              },
+              {
+                "id": "verification-guidance",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "safety-constraints",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "maintainability",
+                "raw": 2,
+                "weight": 1.0,
+                "weighted": 8.2
+              }
+            ],
+            "findings": [
+              {
+                "dimension": "tooling-guidance",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 35,
+                  "line_end": 52
+                },
+                "quote": "Read context in this order:",
+                "rule": "scoring.tooling.sequence-too-general",
+                "suggestion": "Name the exact commands or local helpers expected for each walkthrough surface so agents do not improvise the inventory step."
+              }
+            ],
+            "summary": "The skill gives clear review-facing walkthrough rules, but the command-level inventory guidance could be more explicit.",
+            "provenance": {
+              "provider_id": "anthropic",
+              "model_id": "claude-opus-4-7",
+              "rubric_version": "v1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "01JZ0000000000000000000002",
+      "started_at": "2026-05-03T12:34:00Z",
+      "completed_at": "2026-05-03T12:34:18Z",
+      "content_hash": "2437906ab6471c1cc76e3f5e8e76699099ef3c0705719e92c4712305bfae2867",
+      "rubric_version": "v1",
+      "providers": [
+        {
+          "provider_id": "anthropic",
+          "model_id": "claude-opus-4-7",
+          "envelope": {
+            "schema_version": 1,
+            "overall_pass": true,
+            "score": 84,
+            "dimensions": [
+              {
+                "id": "description-quality",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "trigger-clarity",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "workflow-specificity",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 9.4
+              },
+              {
+                "id": "boundary-discipline",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "tooling-guidance",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 9.4
+              },
+              {
+                "id": "verification-guidance",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 9.4
+              },
+              {
+                "id": "safety-constraints",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 12.5
+              },
+              {
+                "id": "maintainability",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 6.3
+              }
+            ],
+            "findings": [
+              {
+                "dimension": "workflow-specificity",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 71,
+                  "line_end": 89
+                },
+                "quote": "Each step should explain one concept, not one file.",
+                "rule": "scoring.workflow.example-density",
+                "suggestion": "Add one compact example of grouping two related file changes under a single conceptual step."
+              },
+              {
+                "dimension": "safety-constraints",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 1,
+                  "line_end": 6
+                },
+                "quote": "Use when explaining a code changeset in chat, MR descriptions, or explicitly requested local delivery notes.",
+                "rule": "scoring.safety.trigger-boundary-clear",
+                "suggestion": "The activation boundary is clear and should stay narrow."
+              }
+            ],
+            "summary": "Strong activation boundary and good surface-specific rules. The skill would be easier to apply with one concrete example of concept grouping.",
+            "provenance": {
+              "provider_id": "anthropic",
+              "model_id": "claude-opus-4-7",
+              "rubric_version": "v1"
+            }
+          }
+        },
+        {
+          "provider_id": "openai",
+          "model_id": "gpt-5.2",
+          "envelope": {
+            "schema_version": 1,
+            "overall_pass": true,
+            "score": 68,
+            "dimensions": [
+              {
+                "id": "description-quality",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 9.4
+              },
+              {
+                "id": "trigger-clarity",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 9.4
+              },
+              {
+                "id": "workflow-specificity",
+                "raw": 2,
+                "weight": 1.0,
+                "weighted": 6.3
+              },
+              {
+                "id": "boundary-discipline",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 9.4
+              },
+              {
+                "id": "tooling-guidance",
+                "raw": 2,
+                "weight": 1.0,
+                "weighted": 6.3
+              },
+              {
+                "id": "verification-guidance",
+                "raw": 2,
+                "weight": 1.0,
+                "weighted": 6.3
+              },
+              {
+                "id": "safety-constraints",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 9.4
+              },
+              {
+                "id": "maintainability",
+                "raw": 2,
+                "weight": 1.0,
+                "weighted": 11.5
+              }
+            ],
+            "findings": [
+              {
+                "dimension": "workflow-specificity",
+                "severity": "fail",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 35,
+                  "line_end": 65
+                },
+                "quote": "Read context in this order:",
+                "rule": "scoring.workflow.insufficient-decision-rule",
+                "suggestion": "Define the decision rule for when a walkthrough should collapse related files into one concept instead of listing files one by one."
+              },
+              {
+                "dimension": "verification-guidance",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 100,
+                  "line_end": 120
+                },
+                "quote": "Before writing the walkthrough, build an inventory of:",
+                "rule": "scoring.verification.coverage-gate",
+                "suggestion": "State what proof the agent should leave when coverage is complete, such as a checked file inventory."
+              }
+            ],
+            "summary": "The walkthrough format is useful, but the operational decision rules are under-specified for agents handling mixed or large diffs.",
+            "provenance": {
+              "provider_id": "openai",
+              "model_id": "gpt-5.2",
+              "rubric_version": "v1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
