@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Squad Review Verification"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Review Verification
 

@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Squad Review Author"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Review Author
 
@@ -158,9 +158,9 @@ Downgrade rule when a bounded attempt cannot establish required proof:
 - `Minor`: real issue with limited blast radius
 - `Trivial`: note worth recording but non-blocking
 
-## Changelog boundary
+## Local Note Boundary
 
-Read relevant `docs/changelog/` entries as context when they exist. Do not block an internal squad review solely because the final delivery changelog does not exist yet. That gate belongs to delivery flows and external deliverable review commands.
+Read user-provided local notes as context when they are relevant. Do not block any review because a changelog or local note file is absent.
 
 ## Artifact contract
 

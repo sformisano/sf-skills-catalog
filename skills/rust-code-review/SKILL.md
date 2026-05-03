@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Rust Code Review"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Rust Code Review
 
@@ -26,10 +26,10 @@ Review in this order:
 Before judging code:
 
 - read the diff and commit context
-- read relevant `docs/changelog/` entries when they exist
+- read relevant local scratch notes only when the user points to them or they are clearly task-local context
 - read linked tickets or MR descriptions when available
 
-If the change has no changelog and the active scope is an external deliverable review, apply @skill:changelog-authoring and stop.
+Do not block a review because a changelog is absent. Changelog files are not required review inputs.
 
 ## Severity guidance
 
@@ -120,15 +120,6 @@ If the user does not specify a scope, ask for one.
 - external tool failures follow @skill:execution-discipline
 - apply @skill:completion-verification before claiming the review is complete
 
-### Changelog gate
-
-Apply the deliverable review gate from @skill:changelog-authoring for `delta`, `branch`, and `mr`.
-
-Do **not** apply that gate to:
-
-- `codebase` audits
-- internal squad review rounds
-
 ## Scope: Delta
 
 Review local branch work plus staged, unstaged, and untracked changes.
@@ -159,8 +150,7 @@ Review `<target>...<branch>`.
 
 1. Resolve the repo and target branch.
 2. Gather diff context and recent commit history.
-3. Apply the changelog gate.
-4. Review and report.
+3. Review and report.
 
 Suggested commands:
 
@@ -180,8 +170,7 @@ Review an MR using GitLab metadata and the branch diff.
 2. Resolve the MR number or URL.
 3. Use the repository's standard merge-request tooling to fetch MR metadata.
 4. Gather `<target>...<source>` diff context.
-5. Apply the changelog gate.
-6. Review and report.
+5. Review and report.
 
 ## Scope: Codebase
 
@@ -194,8 +183,6 @@ Focus on:
 - test coverage gaps
 - error handling consistency
 - major dependency or public API risks
-
-This scope does not use the changelog gate.
 
 ## Codebase audit structure
 

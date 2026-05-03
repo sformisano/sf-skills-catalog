@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Squad Manifest"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-18T11:22:39Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Squad Manifest
 
@@ -363,7 +363,7 @@ Cadence rule: each review round has at most one adversary block. When `lead_deci
 Deferred items are not a way to ship unfinished in-scope work silently.
 
 - `acknowledged-carry-forward` means the item remains in scope for this lifecycle. It must name `owner_phase`, set `delivery_blocking: true`, and populate `resolved_at` before delivery-ready.
-- `acknowledged-promoted-to-requirement` means the item is no longer part of this lifecycle only when `target` names the new requirement or follow-up task and the final changelog repeats that transfer.
+- `acknowledged-promoted-to-requirement` means the item is no longer part of this lifecycle only when `target` names the new requirement or follow-up task and the final handoff repeats that transfer.
 - `acknowledged-escalated-to-user` means delivery is blocked until the user decision is recorded in a matching waiver or amendment.
 
 Any deferred item with `delivery_blocking: true` and `resolved_at: null` blocks delivery-ready.
@@ -426,7 +426,7 @@ The lead applies these rules before every phase transition and on every resume. 
 17. When `current.heartbeat_path` is not null, it points to an existing readable heartbeat file under the current task journal.
 18. `end_to_end_sweep.required` is `true` whenever any Risk flag is `true`, or when `flags.multi-phase` is `true` and any of `flags.shared-contract-change`, `flags.persisted-state-change`, `flags.authority-shift`, `flags.external-behavior-change`, or `flags.compatibility-promise` is `true`.
 19. `triage.requires_revalidation: true` blocks every phase transition, review dispatch, end-to-end dispatch, and delivery. A new plan round must reach `accepted: true`, `status: active`, and `accepted_at` later than the current triage round's `proposed_at` before work can continue. If the current triage round has `status: proposed` or the accepted plan's `accepted_at` is older than the current triage round's `proposed_at`, the manifest is treated as requiring revalidation even if the boolean was not set.
-20. Every accepted checklist candidate has an owner and either `target_skill` or a follow-up target in `candidate`. Accepted candidates with `closed_at: null` do not block delivery by themselves, but they must appear in final handoff or changelog residuals.
+20. Every accepted checklist candidate has an owner and either `target_skill` or a follow-up target in `candidate`. Accepted candidates with `closed_at: null` do not block delivery by themselves, but they must appear in final handoff residuals.
 21. Every active child session has a readable `output_path`; active critical-path implementer and review-author sessions also have a readable `heartbeat_path`.
 
 **Semantic checks** remain the critic's responsibility and are not covered by these rules. They include whether flag values match the actual change, whether plan sections substantively cover the obligations, and whether exercise or parity evidence is substantive.

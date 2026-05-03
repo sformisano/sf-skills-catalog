@@ -32,7 +32,7 @@ Use this reference after the main review-critic workflow passes structural check
 
 21. Proof-execution-mode discipline: every proof row populates `execution_mode`; any unsupported `parallel` row is contaminated and needs a sequential rerun
 22. Authority state consistency: if the current review cites earlier rounds, make sure those rounds are still `active` in the manifest and not silently superseded or contaminated
-23. Lifecycle artifact drift: `manifest.yaml`, `HANDOFF.md`, `STATUS.md`, final changelog, and resume docs do not contradict each other, or stale docs are explicitly marked superseded
+23. Lifecycle artifact drift: `manifest.yaml`, `HANDOFF.md`, `STATUS.md`, and resume docs do not contradict each other, or stale docs are explicitly marked superseded
 
 ## Output expectation
 

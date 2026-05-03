@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Execution Discipline"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Execution Discipline
 
@@ -39,9 +39,9 @@ These rules apply whenever you are working inside a plan -> implement -> review 
 - Before proposing cleanup, warn that it may delete plans, reports, journals, or session state.
 - Prefer continue, resume, or a fresh review round over destructive cleanup.
 
-### Never delete tracked artifacts proactively
+### Never delete lifecycle artifacts proactively
 
-- Never delete requirement files, journal artifacts, or changelog entries without explicit user instruction for each file.
+- Never delete requirement files, journal artifacts, or user-created local notes without explicit user instruction for each file.
 - Prior approval for one deletion does not authorize later deletions.
 
 ### Never rewrite pushed history without approval
@@ -63,8 +63,8 @@ Run these before substantial multi-step work:
    - Re-read each target file right before editing it.
    - Keep edits minimal and localized.
    - If a file changed since your last read, stop and reassess.
-4. **Changelog context**
-   - When `docs/changelog/` exists, read relevant entries before modifying the same area.
+4. **Local note context**
+   - When the user points to ignored local notes, or task-local notes are clearly relevant, read them before modifying the same area.
 5. **Verification planning**
    - Identify the fresh command or artifact that will prove success.
    - Apply @skill:completion-verification before claiming completion.

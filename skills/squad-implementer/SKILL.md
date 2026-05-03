@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Squad Implementer"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Implementer
 
@@ -52,8 +52,8 @@ Prompt starts with "Address these review findings".
 ## Execution rules
 
 - Treat plan scenarios as acceptance contracts when they exist.
-- Read recent `docs/changelog/` entries for the touched area before major edits.
-- Do not create, modify, or delete files under `docs/changelog/`. Final changelog authoring belongs to delivery.
+- Read user-provided task notes for the touched area before major edits.
+- Do not create, modify, or delete ignored local scratch files unless the prompt explicitly assigns that work.
 - All output artifacts must remain inside the current project directory.
 - Defers are explicit, never silent. Any work you intentionally leave for a later round must appear in `### Deferred` of the implementation report with same-line rationale. The lead will acknowledge each defer in the manifest's `deferred_items.ack` before the next phase dispatches (see @skill:squad-manifest). If the plan assumes a prerequisite that turns out to be missing, stop and raise it in `## Deviations`; do not work around it silently.
 

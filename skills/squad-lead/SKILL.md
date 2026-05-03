@@ -5,11 +5,11 @@ metadata:
   skillcatalog/display_name: "Squad Lead"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Squad Lead
 
-You orchestrate the internal lifecycle from requirement through submit-ready review. Delivery actions such as final changelog authoring, commit, push, and MR creation happen after your handoff.
+You orchestrate the internal lifecycle from requirement through submit-ready review. Delivery actions such as commit, push, and MR creation happen after your handoff.
 
 ## Workflow summary
 
@@ -77,7 +77,7 @@ Load context in this order:
 
 1. prior journal artifacts
 2. `docs/system-spec.md`, if present
-3. relevant `docs/changelog/` entries
+3. user-provided local notes, when relevant
 4. architecture or policy docs
 
 For planning rounds that alter shared contracts, persisted state, resolver behavior, or other cross-cutting interfaces, include a concrete code-seam inventory in the specialist prompt.
@@ -308,7 +308,7 @@ Smoke checks:
 2. Fixture inventory: every checked-in fixture added by the lifecycle has an accepted `Fixture Use` or `Fixture Exercise Evidence` row naming a consuming test or exercise.
 3. Negative surface scans: every removed field, flag, control, command name, schema property, docs phrase, or embedded catalog concept has an accepted negative scan row or command output.
 4. Public command existence: every command named in docs or UI help has an accepted help or command-existence proof.
-5. Lifecycle artifact drift: manifest current state, final review records, handoff/status docs, and changelog state do not visibly contradict each other. Use @skill:lifecycle-coherence-audit for the full checklist.
+5. Lifecycle artifact drift: manifest current state, final review records, and handoff/status docs do not visibly contradict each other. Use @skill:lifecycle-coherence-audit for the full checklist.
 
 Lead boundary:
 
@@ -409,7 +409,7 @@ Run this gate when the final review reaches `submit` and Phase 3.5 or Phase 4.5 
 - after every gate passes, set `current.phase: delivery-ready`, `current.loop: null`, and `current.status: complete`
 - report that the internal lifecycle is complete
 - surface any skipped steps explicitly
-- hand off to delivery for final changelog authoring under `docs/changelog/`, commit, push, and MR creation
+- hand off to delivery for commit, push, and MR creation
 
 Do not claim the task is delivered until those delivery gates pass.
 
@@ -422,10 +422,9 @@ Before marking the lifecycle `delivery-ready` or claiming delivery completion, l
 Check:
 
 - `manifest.yaml` current phase, loop, round, and status match the final accepted plan, phase, review, and e2e records
-- the final delivery changelog exists when the task is being claimed delivered; if changelog authoring is intentionally post-handoff, the manifest and final response must say delivery is pending rather than complete
 - `HANDOFF.md`, `STATUS.md`, resume docs, and similar task-local state docs either match the manifest or are explicitly marked superseded with the newer artifact named
 - stale "next action" instructions are removed or fenced as historical
-- any deferred item in the final changelog matches manifest defers and waivers
+- deferred items in handoff or delivery summary text match manifest defers and waivers
 
 If any artifact contradicts the manifest, stop and correct the artifact or mark it superseded before reporting delivery readiness. Do not let a stale handoff coexist with a manifest that says complete unless the handoff clearly says it is superseded.
 
@@ -433,6 +432,5 @@ If any artifact contradicts the manifest, stop and correct the artifact or mark 
 
 - Never commit, push, or create MRs.
 - Do not edit application code yourself.
-- Do not author the final delivery changelog during internal plan, implementation, or review rounds.
 - Do not write prose state into the manifest. Prose belongs in `notes.md`.
 - Never synthesize `approver: user` waivers during migration. Use `approver: migration` and require user ratification.

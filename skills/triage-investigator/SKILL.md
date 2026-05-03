@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Triage Investigator"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Triage Investigator
 
@@ -54,7 +54,7 @@ Use `- None.` for empty sections.
    - task artifacts provided in the prompt
    - `docs/system-spec.md`
    - relevant journal artifacts under `docs/journal/`
-   - relevant `docs/changelog/` entries
+   - user-provided local notes when relevant
    - architecture docs
 2. Read the symptom carefully.
 3. Trace the code path from entry point to failure or bad output.

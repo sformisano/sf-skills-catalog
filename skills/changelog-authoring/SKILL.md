@@ -1,42 +1,42 @@
 ---
 name: changelog-authoring
-description: "Defines final delivery changelog naming, gate behavior, and narrative structure. Also use it as context when reading recent changes or understanding why code looks unusual."
+description: "Use only when the user explicitly asks for a local changelog or delivery note, or when reading existing local scratch notes. This skill is not a delivery, review, MR, or commit gate."
 metadata:
   skillcatalog/display_name: "Changelog Authoring"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
-# Changelog Authoring
+# Local Changelog Authoring
 
-A changelog is the final delivery narrative for a completed task. It records what was planned, what actually happened, what changed along the way, and what remains deferred.
+This skill writes optional local notes. It must not create a committed delivery artifact, and it must not block review, MR creation, commit, push, or delivery when no changelog exists.
 
-## Changelog as context
+## Boundaries
 
-When `docs/changelog/` exists, read relevant entries:
+- Do not require a changelog for ordinary delivery.
+- Do not require a changelog to appear in a branch diff or change set.
+- Do not add changelog files to commits.
+- Do not alter `.gitignore` so `.tmp/` becomes tracked.
+- Use chat, MR descriptions, commit messages, review artifacts, or the task's explicit journal for required delivery narrative.
+- Use `.tmp/changelog/` only as ignored local scratch when the user explicitly requests a file or the workflow already has relevant local notes.
+
+## Local Notes As Context
+
+When ignored local `.tmp/changelog/` notes exist and are clearly relevant, you may read them:
 
 - before modifying the same area
 - when code or behavior seems odd
 - when reviewing recent design tradeoffs
 
-Use changelog entries as supplementary context, not as a substitute for code or git history.
-
-## Artifact contract
-
-There are two delivery artifact families:
-
-1. optional task journals under `docs/journal/`
-2. mandatory final delivery changelogs under `docs/changelog/`
-
-Internal squad planning, implementation, and review rounds use the journal. Final changelog authoring happens during delivery, after the internal lifecycle reaches a `submit` recommendation.
+Use local notes as supplementary context, not as a substitute for code, git history, tickets, or current user instructions.
 
 ## File naming
 
 Use:
 
 ```text
-docs/changelog/YYYY-MM-DDTHHMM_<TICKET>_<brief-description>.md
-docs/changelog/YYYY-MM-DDTHHMM_<brief-description>.md
+.tmp/changelog/YYYY-MM-DDTHHMM_<TICKET>_<brief-description>.md
+.tmp/changelog/YYYY-MM-DDTHHMM_<brief-description>.md
 ```
 
 Rules:
@@ -45,38 +45,19 @@ Rules:
 - include the ticket token when one exists
 - use a short kebab-case description
 
-## Gate behavior
+## No Gate Behavior
 
-This skill is the canonical gate for final delivery changelogs.
+This skill is not a gate. Missing changelog notes are never a reason to stop:
 
-### Delivery completion gate
-
-Before claiming a task is delivered:
-
-1. verify the change set includes exactly one intended final changelog under `docs/changelog/`
-2. if it is missing, stop and write it
-3. if a journal exists, keep the journal and changelog separate
-
-### MR creation gate
-
-Before creating an MR:
-
-1. verify the branch diff includes a final changelog under `docs/changelog/`
-2. show the changelog path and content to the author
-3. require explicit acknowledgment before proceeding
-
-### External deliverable review gate
-
-For external review commands such as `review-delta`, `review-branch`, and `review-mr`:
-
-1. verify the change set includes a final changelog
-2. if missing, stop review and ask for the changelog first
-
-This gate does **not** apply to internal squad review rounds.
+- delivery completion
+- MR creation
+- external deliverable review
+- internal squad review
+- commit or push
 
 ## Narrative structure
 
-Every changelog should cover these five parts, scaled to the change size:
+When the user explicitly requests a local changelog file, cover these five parts, scaled to the change size:
 
 1. `## Plan`
 2. `## Execution`
@@ -88,7 +69,7 @@ Simple changes can keep sections brief. Complex changes should include more rati
 
 ## Runtime-dispatched mode
 
-If a delivery flow pre-populates the section headings, fill them without renaming or reordering them.
+If a local-note flow pre-populates the section headings, fill them without renaming or reordering them.
 
 ## Templates
 
@@ -131,7 +112,7 @@ If a delivery flow pre-populates the section headings, fill them without renamin
 
 ## Walkthrough appendix
 
-Add `## Walkthrough` only when the delivered change contains code files.
+Add `## Walkthrough` only when the requested local note covers code files.
 
 - apply the applicability gate from @skill:change-walkthrough
 - keep the walkthrough after `## Deferred`
@@ -148,13 +129,13 @@ path/to/file.ext:12-48 ([open](OPEN_LINK), [GitLab](https://<host>/<group>/<repo
 Rules:
 
 - keep the plain text path and line range
-- use a relative `open` link from `docs/changelog/`
+- use a relative `open` link from `.tmp/changelog/`
 - use commit SHA in the GitLab link
 - if the GitLab remote is unavailable, keep only the `open` link
 
 ## Generate from git delta
 
-Use this standalone workflow when delivery needs a final changelog from the current repo state.
+Use this standalone workflow only when the user asks for a local changelog file from the current repo state.
 
 1. Resolve the target branch in this order:
    - `origin/HEAD`
@@ -174,7 +155,8 @@ Use this standalone workflow when delivery needs a final changelog from the curr
    - short kebab-case description
 5. Draft the narrative sections.
 6. Add `## Walkthrough` only when code files are present.
-7. Write exactly one final artifact under `docs/changelog/`.
+7. Write the local artifact under `.tmp/changelog/`.
+8. Leave the artifact untracked.
 
 ## Failure handling
 

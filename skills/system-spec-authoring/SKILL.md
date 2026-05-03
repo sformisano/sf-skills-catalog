@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "System Spec Authoring"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # System Spec Authoring
 
@@ -40,7 +40,7 @@ Keep `docs/system-spec.md` aligned to this structure:
 
 - Prefer concise factual bullets over narrative history.
 - Describe the live contract, not abandoned layouts.
-- When behavior changed because of a specific lifecycle task, link the update back to the relevant journal or changelog entry when that reference is available.
+- When behavior changed because of a specific lifecycle task, link the update back to the relevant journal, ticket, MR, or local note when that reference is available.
 - If an older skill or prompt conflicts with the live system spec, update the skill or prompt in the same change. Do not leave the spec correct and the skills stale.
 
 ## Drift handling
@@ -51,4 +51,4 @@ Keep `docs/system-spec.md` aligned to this structure:
 ## Boundary
 
 - This skill governs only `docs/system-spec.md`.
-- It does not replace lifecycle gates, changelog requirements, or review findings.
+- It does not replace lifecycle gates, delivery summaries, or review findings.

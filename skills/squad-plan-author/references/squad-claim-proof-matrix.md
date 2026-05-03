@@ -47,7 +47,7 @@ Allowed `proof_stage` values:
 - `PHASE-XX` or `PHASE-ALL`: the named phase implementation and review must prove the claim before local submit.
 - `cross_phase_smoke`: Phase 3.75 proves the claim mechanically after phases compose. Use only for inventory, fixture-consumption, negative-scan, command-existence, or lifecycle-artifact checks that do not require source-level review.
 - `e2e`: Phase 4 end-to-end review proves the integrated behavior or source-level mechanism after all phases compose.
-- `delivery`: the delivery gate proves the claim, usually final changelog, handoff, resume, or external delivery coherence.
+- `delivery`: the delivery gate proves the claim, usually handoff, resume, release or MR metadata, or external delivery coherence.
 
 Rules:
 
@@ -98,4 +98,4 @@ When any lifecycle role finds one of these, treat it as a checklist candidate ra
 - generated schema, generated docs, or generated help text was not regenerated or literal-scanned
 - a runtime concurrency claim is not backed by actual fan-out semantics before awaits
 - an IPC, CLI, or API error shape was added but not exercised for each variant
-- a handoff or status document contradicts the manifest or final changelog
+- a handoff or status document contradicts the manifest or delivery summary

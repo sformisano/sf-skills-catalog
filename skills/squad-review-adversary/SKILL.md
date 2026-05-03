@@ -5,7 +5,7 @@ metadata:
   skillcatalog/display_name: "Squad Review Adversary"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-28T00:00:00Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Review Adversary
 

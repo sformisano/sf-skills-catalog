@@ -1,11 +1,11 @@
 ---
 name: change-walkthrough
-description: "Use when explaining a code changeset in chat, MR descriptions, or changelogs. Orders concepts before files and enforces full code-diff coverage with surface-specific reference formats."
+description: "Use when explaining a code changeset in chat, MR descriptions, or explicitly requested local delivery notes. Orders concepts before files and enforces full code-diff coverage with surface-specific reference formats."
 metadata:
   skillcatalog/display_name: "Change Walkthrough"
   skillcatalog/author: "Salvatore Formisano"
   skillcatalog/created_at: "2026-04-06T21:43:21Z"
-  skillcatalog/updated_at: "2026-04-30T09:15:57Z"
+  skillcatalog/updated_at: "2026-05-03T10:19:17Z"
 ---
 # Change Walkthrough
 
@@ -14,14 +14,14 @@ Use this skill to explain code changes in conceptual order so a human reviewer c
 ## Boundary
 
 - Walkthrough is a comprehension aid.
-- It does not replace review findings, changelog gates, or verification gates.
-- It applies only to code changes. Non-code files belong in changelog or review narrative, not the walkthrough itself.
+- It does not replace review findings or verification gates.
+- It applies only to code changes. Non-code files belong in surrounding review or delivery narrative, not the walkthrough itself.
 
 ## Output surfaces
 
 - **Chat**: concept-ordered walkthrough with fenced citation blocks
 - **MR description**: shorter concept-ordered walkthrough section
-- **Changelog**: `## Walkthrough` appendix with dual-link references
+- **Local note**: `## Walkthrough` appendix with dual-link references, only when the user explicitly requests a local note
 
 ## Applicability gate
 
@@ -45,7 +45,7 @@ Read context in this order:
 3. commit log or MR metadata
 4. full diff
 5. changed file content needed for precise references
-6. relevant changelog or journal entries when they clarify intent
+6. relevant journal entries or user-provided local notes when they clarify intent
 
 ## Ordering methodology
 
@@ -68,7 +68,7 @@ Each step should explain one concept, not one file.
 For every step:
 
 - use a short title
-- write 2 to 4 sentences in chat and changelog output
+- write 2 to 4 sentences in chat and local-note output
 - write 1 to 2 sentences in MR output
 - explain what changed, why it matters, and how it connects to the previous step
 
@@ -89,7 +89,7 @@ All walkthrough output must cover the full scoped code diff.
 Use the active surface format for every existing or added file:
 
 - **Chat and MR**: fenced citation blocks headed by `startLine:endLine:filepath`
-- **Changelog**: dual-link line-range format from @skill:changelog-authoring
+- **Local note**: dual-link line-range format from @skill:changelog-authoring
 
 Path-only fallback is allowed only for deleted files, renamed old paths, binary files, or generated artifacts, and each fallback must include the reason.
 
@@ -111,7 +111,7 @@ References:
 ```
 ````
 
-### Changelog step
+### Local Note Step
 
 ````markdown
 ## Walkthrough

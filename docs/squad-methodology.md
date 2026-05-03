@@ -305,7 +305,7 @@ Phase 3.75 is that cheap preflight. After every required implementation phase is
 - Every fixture added by the lifecycle has an accepted consuming test or exercise.
 - Every removed surface has an accepted negative scan over the composed tree, not just one phase's slice.
 - Every public command named in docs or UI help has an accepted help or existence proof.
-- Lifecycle artifacts (manifest, final review records, handoff/status docs, changelog state) do not visibly contradict each other.
+- Lifecycle artifacts (manifest, final review records, and handoff/status docs) do not visibly contradict each other.
 
 The smoke is mechanical. The lead reads accepted artifacts, runs literal scans named in the plan, and runs help commands. If a smoke question requires interpreting implementation source, that work belongs to the Phase 4 review-author, not here. If the smoke finds a defect attributable to one phase, that phase's `closure.local_status` transitions to `reopened_by_pre_e2e_smoke` and the lead loops back to Phase 2 for that phase. If the smoke finds a plan or framing problem, the lead escalates to the user before any Phase 4 dispatch.
 
@@ -337,9 +337,9 @@ Acceptance of the final review (Phase 3.5 or Phase 4.5) is necessary but not suf
 - every carry-forward deferred item is resolved; promoted or escalated defers name a concrete target
 - every `proof_stage: delivery` NNG or high-risk REQ claim has a satisfied `delivery_claims` entry with concrete evidence and `execution_mode` for command-backed proof
 - the final review round's adversary block records `lead_decision: accept` (or `escalate_user` paired with a ratified user waiver, or `skipped` paired with a Tier Lite drift check)
-- a lifecycle coherence audit confirms manifest, final review records, handoff or status docs, and changelog state agree
+- a lifecycle coherence audit confirms manifest, final review records, and handoff or status docs agree
 
-Only after every gate passes does the lead set `current.phase: delivery-ready` and hand off to delivery for changelog authoring, commit, push, and MR creation.
+Only after every gate passes does the lead set `current.phase: delivery-ready` and hand off to delivery for commit, push, and MR creation.
 
 ## The lead
 
@@ -406,7 +406,7 @@ Let us walk a small task through the protocol with concrete artifacts. Imagine t
 
 10. **Phase 3.5 again.** The adversary runs a fresh check. Both read and write paths now correctly honor the flag. No blocking findings; the residual concern names "if a future code path adds another cache touch, the flag check might be missed." The lead picks `accept`. This was a single-phase task, so the lead skips Phase 4 and marks the lifecycle `delivery-ready`.
 
-11. **Delivery handoff.** The lead verifies the manifest is valid, every waiver is ratified, every defer is acknowledged, and hands off to the changelog author, commit, push, and MR.
+11. **Delivery handoff.** The lead verifies the manifest is valid, every waiver is ratified, every defer is acknowledged, and hands off for commit, push, and MR.
 
 That walkthrough shows every role at least once and shows where the adversaries earned their cost (one blocking find at the review boundary that the in-loop critic missed).
 
@@ -440,7 +440,7 @@ The protocol is not a *bureaucracy*. Tier Lite skips most of the heavy machinery
 
 The protocol is not a *replacement for engineering capability*. The agents still need to be capable of reading code, writing tests, designing data structures, and reasoning about runtime semantics. The protocol catches the failure modes that emerge when capable agents work alone or in same-frame pairs. It does not turn an incapable agent into a capable one. (The word "skill" is reserved in this catalog for the named files under `skills/`, so it is not used here in the human-capability sense.)
 
-The protocol is not *fixed*. The skill files in this catalog are the current implementation. As empirical experience accumulates (which findings the adversaries actually catch, which gates produce friction without value, where the boundaries between roles are wrong), the skills evolve. The history of those changes lives in `docs/changelog/` and `docs/design/`.
+The protocol is not *fixed*. The skill files in this catalog are the current implementation. As empirical experience accumulates (which findings the adversaries actually catch, which gates produce friction without value, where the boundaries between roles are wrong), the skills evolve. The durable history of those changes lives in git and `docs/design/`; ignored local notes are scratch, not delivery artifacts.
 
 ## Where to read next
 
