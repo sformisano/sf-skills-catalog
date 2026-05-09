@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "skill_slug": "squad-plan-critic",
+  "runs": [
+    {
+      "run_id": "01KR6274XV61Z80T6Z70A4TAQB",
+      "started_at": "2026-05-09T09:46:39Z",
+      "completed_at": "2026-05-09T09:48:38Z",
+      "content_hash": "9fb63d46d6d1c03dded7d5d17cac404a09e3c87073d916130b9e979bef317477",
+      "rubric_version": "v1",
+      "source": "fresh_provider_score",
+      "providers": [
+        {
+          "provider_id": "claude-code-local",
+          "model_id": "claude-code-local",
+          "envelope": {
+            "schema_version": 1,
+            "overall_pass": false,
+            "score": 80,
+            "dimensions": [
+              {
+                "id": "description-quality",
+                "raw": 4,
+                "weight": 2.5,
+                "weighted": 25.0
+              },
+              {
+                "id": "conciseness",
+                "raw": 2,
+                "weight": 1.25,
+                "weighted": 6.25
+              },
+              {
+                "id": "degrees-of-freedom",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "imperative-voice",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "consistent-terminology",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              },
+              {
+                "id": "progressive-disclosure",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              },
+              {
+                "id": "examples-and-templates",
+                "raw": 2,
+                "weight": 1.25,
+                "weighted": 6.25
+              },
+              {
+                "id": "anti-patterns",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              }
+            ],
+            "findings": [
+              {
+                "dimension": "description-quality",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 3,
+                  "line_end": 3
+                },
+                "quote": "Specialist for critiquing a squad plan artifact for scope, verification, phase, and boundary defects. Use when dispatched by squad-lead or explicitly asked to review a squad plan artifact.",
+                "rule": "description-quality/action-trigger-outcome",
+                "suggestion": "Description clearly names the action (critiquing), trigger (dispatched by squad-lead or explicitly asked), and outcome (finding defects). No changes needed."
+              },
+              {
+                "dimension": "conciseness",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 83,
+                  "line_end": 92
+                },
+                "quote": "Apply every angle every round. For the full audit and angle definitions, use `references/squad-plan-critic-angles.md`.\n\nMinimum expectation:\n\n- produce fresh evidence when the angle's triggering surface changed\n- produce concise revalidation when the triggering surface did not change\n- never skip Angle 0 or compress later rounds to \"validate prior findings\"\n- do not return an empty `SATISFIED` artifact",
+                "rule": "conciseness/redundant-sections",
+                "suggestion": "The 'What to look for' section (lines 83-92) and 'Applying the checklist every round' section (lines 94-100) substantially overlap: both specify fresh-evidence vs. concise-revalidation behavior and the prohibition on skipping angles. Merge them into a single 'Per-round checklist' section."
+              },
+              {
+                "dimension": "conciseness",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 34,
+                  "line_end": 39
+                },
+                "quote": "3. Sweep every review angle, even on later rounds.\n4. Return a concrete verdict with evidence, not a generic approval or rejection.\n\nIf Angle 0 fails, stop and return `NEEDS_REVISION` before running the remaining angles.",
+                "rule": "conciseness/repeated-guidance",
+                "suggestion": "The instruction to sweep every angle and return concrete verdicts is restated in 'What to look for' and 'Applying the checklist every round'. Consolidate the per-round discipline into one canonical section and reference it from Review order."
+              },
+              {
+                "dimension": "degrees-of-freedom",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 67,
+                  "line_end": 69
+                },
+                "quote": "The rules below are not optional.",
+                "rule": "degrees-of-freedom/mandatory-label",
+                "suggestion": "Good explicit mandatory marker. Consider similarly labelling the structural checks list as mandatory vs. conditional (some items are conditional on tier or triage flags but this isn't always obvious)."
+              },
+              {
+                "dimension": "imperative-voice",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 69,
+                  "line_end": 69
+                },
+                "quote": "You are inside the same frame as the plan-author: the requirement, the triage, and the plan text. Frame-level mistakes are hard to see from inside the frame.",
+                "rule": "imperative-voice/descriptive-prose",
+                "suggestion": "This preamble uses descriptive prose to set context before the imperative rules. Acceptable for framing, but could be tightened to a single sentence."
+              },
+              {
+                "dimension": "examples-and-templates",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 106,
+                  "line_end": 113
+                },
+                "quote": "Minimal shape:\n\n```markdown\nCRITIC_VERDICT: NEEDS_REVISION - missing compatibility-path walkthrough\n\n## Findings\n- Compatibility promise is flagged in triage, but the plan omits the required compatibility-path walkthrough and proof input.\n```",
+                "rule": "examples-and-templates/insufficient-examples",
+                "suggestion": "Only one minimal output template is provided, and it shows only the NEEDS_REVISION case. Add a SATISFIED example showing per-angle evidence and the Strongest Remaining Objection section. Add at least one concrete example of an anti-frame discipline finding to show the expected depth and format."
+              },
+              {
+                "dimension": "examples-and-templates",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 71,
+                  "line_end": 79
+                },
+                "quote": "**External-library claims must be grounded in the library's actual API surface, not in `Cargo.toml`.**",
+                "rule": "examples-and-templates/abstract-rules-no-demo",
+                "suggestion": "The anti-frame discipline rules are detailed but entirely abstract. Provide a concrete before/after example for at least one rule (e.g., show a plan claim, the expected investigation, and the resulting finding text)."
+              },
+              {
+                "dimension": "anti-patterns",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 56,
+                  "line_end": 56
+                },
+                "quote": "no NNG or high-risk REQ claim relies only on broad wording such as `run tests`, `run e2e`, `manual review`, or `verify behavior`",
+                "rule": "anti-patterns/concrete-examples",
+                "suggestion": "Good: names specific broad-wording anti-patterns with concrete examples of what to reject. This pattern could be extended to the anti-frame discipline rules."
+              }
+            ],
+            "summary": "Strong point: the description is exemplary — it names the action, trigger, and outcome concisely, and the skill uses progressive disclosure effectively by deferring angle definitions and matrix details to external references. Weak point: the skill has noticeable redundancy between the 'What to look for', 'Applying the checklist every round', and 'Review order' sections, which dilutes the signal (conciseness/redundant-sections). Highest-leverage next action: add a concrete SATISFIED output example and at least one worked anti-frame-discipline finding to close the examples-and-templates gap (examples-and-templates/insufficient-examples), which would also reinforce the anti-pattern guidance.",
+            "provenance": {
+              "provider_id": "claude-code-local",
+              "model_id": "claude-code-local",
+              "rubric_version": "v1"
+            }
+          }
+        },
+        {
+          "provider_id": "codex-local",
+          "model_id": "codex-local",
+          "envelope": {
+            "schema_version": 1,
+            "overall_pass": true,
+            "score": 86,
+            "dimensions": [
+              {
+                "id": "description-quality",
+                "raw": 4,
+                "weight": 2.5,
+                "weighted": 25.0
+              },
+              {
+                "id": "conciseness",
+                "raw": 3,
+                "weight": 1.25,
+                "weighted": 9.375
+              },
+              {
+                "id": "degrees-of-freedom",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              },
+              {
+                "id": "imperative-voice",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "consistent-terminology",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "progressive-disclosure",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "examples-and-templates",
+                "raw": 3,
+                "weight": 1.25,
+                "weighted": 9.375
+              },
+              {
+                "id": "anti-patterns",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              }
+            ],
+            "findings": [
+              {
+                "dimension": "conciseness",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 95,
+                  "line_end": 100
+                },
+                "quote": "## Applying the checklist every round\n\n- Do not narrow scope to \"what changed since last round.\" A revision can break an angle that passed before.\n- When an angle's triggering surface changed, or a contradiction surfaced, include fresh evidence for that angle.\n- When an angle's triggering surface was untouched, concise revalidation is enough: cite the prior round's evidence or strongest remaining objection and say the triggering surface was unchanged.\n- When returning `SATISFIED`, include per-angle fresh evidence or concise revalidation in `## Deviations` or `## Strongest Remaining Objection` per @skill:squad-convergence. An empty-everything artifact is blocking.",
+                "rule": "v1.conciseness.repeated-angle-sweep",
+                "suggestion": "Consolidate the repeated every-round angle guidance with the earlier review-order section, keeping one canonical checklist and linking back to it."
+              },
+              {
+                "dimension": "examples-and-templates",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 107,
+                  "line_end": 114
+                },
+                "quote": "Minimal shape:\n\n```markdown\nCRITIC_VERDICT: NEEDS_REVISION - missing compatibility-path walkthrough\n\n## Findings\n- Compatibility promise is flagged in triage, but the plan omits the required compatibility-path walkthrough and proof input.\n```",
+                "rule": "v1.examples-and-templates.single-verdict-template",
+                "suggestion": "Add a compact `SATISFIED` output template so agents can see the expected shape for both allowed verdict paths."
+              }
+            ],
+            "summary": "Strong point: the description and anti-frame discipline clearly define when to load the skill and which failure modes to catch. Weak point: the every-round review guidance repeats across sections, and the template only illustrates a `NEEDS_REVISION` path. Highest-leverage next action: consolidate the repeated angle-sweep checklist and add a matching `SATISFIED` template, addressing v1.conciseness.repeated-angle-sweep and v1.examples-and-templates.single-verdict-template.",
+            "provenance": {
+              "provider_id": "codex-local",
+              "model_id": "codex-local",
+              "rubric_version": "v1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
