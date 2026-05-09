@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "skill_slug": "parallel-dispatch",
+  "runs": [
+    {
+      "run_id": "01KR5X444922G48Y9XYQBBXQVB",
+      "started_at": "2026-05-09T08:18:36Z",
+      "completed_at": "2026-05-09T08:19:36Z",
+      "content_hash": "3ba3fd20983b6f76bd3a4c006b14809d076e542c1b18ec13dbcd35e062cbc32e",
+      "rubric_version": "v1",
+      "source": "fresh_provider_score",
+      "providers": [
+        {
+          "provider_id": "claude-code-local",
+          "model_id": "claude-code-local",
+          "envelope": {
+            "schema_version": 1,
+            "overall_pass": false,
+            "score": 75,
+            "dimensions": [
+              {
+                "id": "description-quality",
+                "raw": 4,
+                "weight": 2.5,
+                "weighted": 25.0
+              },
+              {
+                "id": "conciseness",
+                "raw": 3,
+                "weight": 1.25,
+                "weighted": 9.375
+              },
+              {
+                "id": "degrees-of-freedom",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "imperative-voice",
+                "raw": 2,
+                "weight": 1.0,
+                "weighted": 5.0
+              },
+              {
+                "id": "consistent-terminology",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "progressive-disclosure",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              },
+              {
+                "id": "examples-and-templates",
+                "raw": 1,
+                "weight": 1.25,
+                "weighted": 3.125
+              },
+              {
+                "id": "anti-patterns",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              }
+            ],
+            "findings": [
+              {
+                "dimension": "description-quality",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 3,
+                  "line_end": 3
+                },
+                "quote": "Use when a lead or orchestrator can split independent work into parallel child tasks without shared state, overlapping edits, or ordered dependencies.",
+                "rule": "description-quality/action-trigger-outcome",
+                "suggestion": "Description is strong; no changes needed."
+              },
+              {
+                "dimension": "conciseness",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 51,
+                  "line_end": 55
+                },
+                "quote": "Respect harness isolation from @skill:test-harness-isolation.",
+                "rule": "conciseness/redundant-reference",
+                "suggestion": "The test-harness-isolation reference appears both in 'Do not parallelize when' (line 32) and 'Shared rules' (line 54). Consider consolidating to one location."
+              },
+              {
+                "dimension": "imperative-voice",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 15,
+                  "line_end": 19
+                },
+                "quote": "Parallel dispatch follows the delegation rules in @skill:squad-lead. Only the lead or equivalent orchestrator should dispatch parallel children.",
+                "rule": "imperative-voice/declarative-boundary",
+                "suggestion": "Rewrite boundary section in imperative voice, e.g. 'Follow the delegation rules in @skill:squad-lead. Dispatch parallel children only from the lead or equivalent orchestrator role.'"
+              },
+              {
+                "dimension": "imperative-voice",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 21,
+                  "line_end": 25
+                },
+                "quote": "independent investigations in different subsystems",
+                "rule": "imperative-voice/noun-phrase-list",
+                "suggestion": "Convert 'Good candidates' from a noun-phrase list into imperative guidance, e.g. 'Consider parallelizing independent investigations in different subsystems.'"
+              },
+              {
+                "dimension": "examples-and-templates",
+                "severity": "fail",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 21,
+                  "line_end": 25
+                },
+                "quote": "independent investigations in different subsystems\n- read-only analysis tasks with disjoint scope\n- unrelated failures that do not depend on the same fix",
+                "rule": "examples-and-templates/no-concrete-example",
+                "suggestion": "Add at least one concrete example showing a dispatch prompt template with file-boundary assignments and prohibited side-effects, e.g. a lead splitting a frontend bug and an API bug into two child prompts."
+              },
+              {
+                "dimension": "examples-and-templates",
+                "severity": "fail",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 34,
+                  "line_end": 40
+                },
+                "quote": "1. Split work by independent problem domain.\n2. Define explicit file or responsibility boundaries.\n3. State prohibited side effects in each prompt.",
+                "rule": "examples-and-templates/no-template",
+                "suggestion": "Provide a reusable dispatch-prompt template that fills in task description, file boundaries, prohibited side-effects, and expected output format."
+              },
+              {
+                "dimension": "anti-patterns",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 27,
+                  "line_end": 32
+                },
+                "quote": "tasks edit the same files\n- tasks depend on each other's output\n- the likely root cause sits in one shared pathway",
+                "rule": "anti-patterns/concrete-consequences",
+                "suggestion": "Strengthen anti-patterns by briefly naming the failure mode for each, e.g. 'tasks edit the same files — causes merge conflicts or silent overwrites.'"
+              },
+              {
+                "dimension": "progressive-disclosure",
+                "severity": "info",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 17,
+                  "line_end": 17
+                },
+                "quote": "Parallel dispatch follows the delegation rules in @skill:squad-lead.",
+                "rule": "progressive-disclosure/deferred-context",
+                "suggestion": "Good use of @skill links to defer detail. No changes needed."
+              }
+            ],
+            "summary": "Strong point: the description is exemplary — it names the action (split work into parallel child tasks), the trigger (when scopes are independent), and the constraints (no shared state, overlapping edits, or ordered dependencies) in a single sentence. Weak point: the skill lacks any concrete examples or reusable templates (examples-and-templates scored 1), leaving agents to guess what a well-formed dispatch prompt looks like. Highest-leverage next action: add a concrete dispatch-prompt template with filled-in file boundaries, prohibited side-effects, and expected output format, directly addressing finding examples-and-templates/no-template.",
+            "provenance": {
+              "provider_id": "claude-code-local",
+              "model_id": "claude-code-local",
+              "rubric_version": "v1"
+            }
+          }
+        },
+        {
+          "provider_id": "codex-local",
+          "model_id": "codex-local",
+          "envelope": {
+            "schema_version": 1,
+            "overall_pass": false,
+            "score": 89,
+            "dimensions": [
+              {
+                "id": "description-quality",
+                "raw": 4,
+                "weight": 2.5,
+                "weighted": 25.0
+              },
+              {
+                "id": "conciseness",
+                "raw": 4,
+                "weight": 1.25,
+                "weighted": 12.5
+              },
+              {
+                "id": "degrees-of-freedom",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              },
+              {
+                "id": "imperative-voice",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "consistent-terminology",
+                "raw": 3,
+                "weight": 1.0,
+                "weighted": 7.5
+              },
+              {
+                "id": "progressive-disclosure",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              },
+              {
+                "id": "examples-and-templates",
+                "raw": 2,
+                "weight": 1.25,
+                "weighted": 6.25
+              },
+              {
+                "id": "anti-patterns",
+                "raw": 4,
+                "weight": 1.0,
+                "weighted": 10.0
+              }
+            ],
+            "findings": [
+              {
+                "dimension": "examples-and-templates",
+                "severity": "warn",
+                "location": {
+                  "path": "SKILL.md",
+                  "line_start": 33,
+                  "line_end": 39
+                },
+                "quote": "## Pre-dispatch checklist\n\n1. Split work by independent problem domain.\n2. Define explicit file or responsibility boundaries.\n3. State prohibited side effects in each prompt.\n4. Ask each child for a concise findings summary.\n5. Keep concurrency small and deliberate, usually two to four children.",
+                "rule": "examples-and-templates.missing-reusable-template",
+                "suggestion": "Add a compact child-task prompt template with fields for scope, file or responsibility boundary, prohibited side effects, expected output, and verification ownership."
+              }
+            ],
+            "summary": "Strong point: the skill is concise and gives clear dispatch boundaries with explicit anti-patterns for shared state and shared resources. Weak point: it provides candidate cases and a checklist but no reusable child-prompt template, as noted in examples-and-templates.missing-reusable-template. Highest-leverage next action: add a minimal template for parallel child prompts so agents can apply the checklist consistently.",
+            "provenance": {
+              "provider_id": "codex-local",
+              "model_id": "codex-local",
+              "rubric_version": "v1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
